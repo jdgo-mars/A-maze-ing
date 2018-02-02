@@ -1,0 +1,3 @@
+# A-maze-ing
+
+We want You, to join us in the web castle. A princess was kept captive in the tower of despair by the mighty <insertKeyword ex: closure>, but there is hope... With mighty functional tools, built-in Classes and other sugary sweets Javascript is more powerful than ever!  Join us in this adventure and help us assemble A-Maze-Ing!!!!
