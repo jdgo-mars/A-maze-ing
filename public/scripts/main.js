@@ -1,7 +1,8 @@
-import InputEngine from './InputEngine.js';
-import GameEngine from './GameEngine.js';
+import gGameEngine from './GameEngine.js';
 
-console.log(new InputEngine());
+window.init = () => {
+  gGameEngine.load();  
+}
 
 const socket = io();
 

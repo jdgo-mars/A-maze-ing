@@ -2,12 +2,13 @@
 * https://github.com/MattSkala/html5-bombergirl/tree/master/js
 */
 
-export default class InputEngine {
+class InputEngine {
+  
   constructor() {
     /**
-     * A dictionary mapping ASCII key codes to string values describing
-     * the action we want to take when that key is pressed.
-     */
+   * A dictionary mapping ASCII key codes to string values describing
+   * the action we want to take when that key is pressed.
+   */
     this.bindings = {};
 
     /**
@@ -19,21 +20,19 @@ export default class InputEngine {
     this.listeners = [];
   }
 
-  init() {}
-
   setup() {
     this.bind(38, 'up');
     this.bind(37, 'left');
     this.bind(40, 'down');
     this.bind(39, 'right');
-    this.bind(32, 'bomb');
-    this.bind(18, 'bomb');
+    // this.bind(32, 'bomb');
+    // this.bind(18, 'bomb');
 
     this.bind(87, 'up2');
     this.bind(65, 'left2');
     this.bind(83, 'down2');
     this.bind(68, 'right2');
-    this.bind(16, 'bomb2');
+    // this.bind(16, 'bomb2');
 
     this.bind(13, 'restart');
     this.bind(27, 'escape');
@@ -86,3 +85,6 @@ export default class InputEngine {
     this.listeners = [];
   }
 }
+
+const gInputEngine = new InputEngine();
+export default gInputEngine;
