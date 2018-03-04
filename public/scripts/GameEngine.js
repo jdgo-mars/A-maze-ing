@@ -11,13 +11,13 @@ import Wood from './Wood.js';
 class GameEngine {
   constructor() {
     this.tileSize = 32;
-    this.tilesX = 17;
-    this.tilesY = 13;
+    this.tilesX = 45;
+    this.tilesY = 21;
     this.fps = 50;
     // this.botsCount = 2 /* 0 - 3 */;
     this.playersCount = 1 /* 1 - 2 */;
     // this.bonusesPercent = 16;
-    this.woodCount = 9;
+    this.woodDistributionRatio = 12;
 
     this.stage = null;
     this.menu = null;
@@ -182,7 +182,67 @@ class GameEngine {
     gGameEngine.stage.update();
   }
 
+  generateMaze(x, y) {
+
+    // Establish variables and starting grid
+    var totalCells = x * y;
+    var cells = new Array();
+    var unvis = new Array();
+    for (var i = 0; i < y; i++) {
+      cells[i] = new Array();
+      unvis[i] = new Array();
+      for (var j = 0; j < x; j++) {
+        cells[i][j] = [0, 0, 0, 0];
+        unvis[i][j] = true;
+      }
+    }
+
+    // Set a random position to start from
+    var currentCell = [Math.floor(Math.random() * y), Math.floor(Math.random() * x)];
+    var path = [currentCell];
+    unvis[currentCell[0]][currentCell[1]] = false;
+    var visited = 1;
+
+    // Loop through all available cell positions
+    while (visited < totalCells) {
+      // Determine neighboring cells
+      var pot = [[currentCell[0] - 1, currentCell[1], 0, 2],
+      [currentCell[0], currentCell[1] + 1, 1, 3],
+      [currentCell[0] + 1, currentCell[1], 2, 0],
+      [currentCell[0], currentCell[1] - 1, 3, 1]];
+      var neighbors = new Array();
+
+      // Determine if each neighboring cell is in game grid, and whether it has already been checked
+      for (var l = 0; l < 4; l++) {
+        if (pot[l][0] > -1 && pot[l][0] < y && pot[l][1] > -1 && pot[l][1] < x && unvis[pot[l][0]][pot[l][1]]) { neighbors.push(pot[l]); }
+      }
+
+      // If at least one active neighboring cell has been found
+      if (neighbors.length) {
+        // Choose one of the neighbors at random
+        var next = neighbors[Math.floor(Math.random() * neighbors.length)];
+
+        // Remove the wall between the current cell and the chosen neighboring cell
+        cells[currentCell[0]][currentCell[1]][next[2]] = 1;
+        cells[next[0]][next[1]][next[3]] = 1;
+
+        // Mark the neighbor as visited, and set it as the current cell
+        unvis[next[0]][next[1]] = false;
+        visited++;
+        currentCell = [next[0], next[1]];
+        path.push(currentCell);
+      }
+      // Otherwise go back up a step and keep going
+      else {
+        currentCell = path.pop();
+      }
+    }
+    return cells;
+  }
+
   drawTiles() {
+    var mazeCells = this.generateMaze(22,10);
+
     for (var i = 0; i < this.tilesY; i++) {
       for (var j = 0; j < this.tilesX; j++) {
         if (
@@ -196,9 +256,36 @@ class GameEngine {
           var tile = new Tile('wall', { x: j, y: i });
           this.stage.addChild(tile.bmp);
           this.tiles.push(tile);
-        } else {
+        } else if (j % 2 == 1 && i % 2 == 1 && j !== this.tilesX - 1 && i !== this.tilesY - 1){
           // Grass tiles
           var tile = new Tile('grass', { x: j, y: i });
+          this.stage.addChild(tile.bmp);
+          this.grassTiles.push(tile);
+        }
+      }
+    }
+
+    for (var i = 0; i < mazeCells.length; i++) {
+      for (var j = 0; j < mazeCells[0].length; j++) {
+        if (mazeCells[i][j][1] === 0) {
+          // Wall tiles
+          var tile = new Tile('wall', { x: ((2 * j) + 2), y: ((2 * i) + 1) });
+          this.stage.addChild(tile.bmp);
+          this.tiles.push(tile);
+        } else {
+          // Grass tiles
+          var tile = new Tile('grass', { x: ((2 * j) + 2), y: ((2 * i) + 1) });
+          this.stage.addChild(tile.bmp);
+          this.grassTiles.push(tile);
+        }
+        if (mazeCells[i][j][2] === 0) {
+          // Wall tiles
+          var tile = new Tile('wall', { x: ((2 * j) + 1), y: ((2 * i) + 2) });
+          this.stage.addChild(tile.bmp);
+          this.tiles.push(tile);
+        } else {
+          // Grass tiles
+          var tile = new Tile('grass', { x: ((2 * j) + 1), y: ((2 * i) + 2) });
           this.stage.addChild(tile.bmp);
           this.grassTiles.push(tile);
         }
@@ -223,8 +310,8 @@ class GameEngine {
     for (var j = 0; j < 4; j++) {
       var placedCount = 0;
       for (var i = 0; i < available.length; i++) {
-        if ((j < 2 && (placedCount > this.woodCount / 4 - 1)) || 
-            ((j == 2 || j == 3) && (placedCount > this.woodCount / 4))) {
+        if ((j < 2 && (placedCount > this.woodDistributionRatio / 4 - 1)) || 
+            ((j === 2 || j === 3) && (placedCount > this.woodDistributionRatio / 4))) {
           break;
         }
 
@@ -281,12 +368,15 @@ class GameEngine {
   spawnEnemies() {
     this.enemies = [];
     const availablePathwaysStart = [];
-    let acceptableY = 0;
+
+    this.grassTiles.sort(function (a, b) {
+      if (a.position.y == b.position.y) return a.position.x - b.position.x;
+      return a.position.y - b.position.y;}
+    );
 
     //get pathways with 5 available tiles
     for(var i = 0; i < this.grassTiles.length - 5; i++) {
       if (
-        (this.grassTiles[i].position.y >= acceptableY) &&
         (this.grassTiles[i].position.y === this.grassTiles[i + 1].position.y &&
         this.grassTiles[i].position.y === this.grassTiles[i + 2].position.y &&
         this.grassTiles[i].position.y === this.grassTiles[i + 3].position.y &&
@@ -297,8 +387,8 @@ class GameEngine {
         this.grassTiles[i + 2].position.x - this.grassTiles[i + 1].position.x === 1 &&
         this.grassTiles[i + 1].position.x - this.grassTiles[i].position.x === 1)
       ) {
-          acceptableY = this.grassTiles[i].position.y + 1;
-          availablePathwaysStart.push(i);
+          availablePathwaysStart.push(i + 4);
+          i += 5;          
         }
     }
 
@@ -307,7 +397,6 @@ class GameEngine {
       return 0.5 - Math.random();
     });
 
-    console.log(availablePathwaysStart);
     for (var i = 0; i < 3; i++) {
       var startingPosition = this.grassTiles[availablePathwaysStart[i]].position;
       var enemy = new Enemy(startingPosition);

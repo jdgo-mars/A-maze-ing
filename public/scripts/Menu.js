@@ -64,7 +64,6 @@ export default class Menu {
 
         // game title
         text = text || [{ text: 'A-Maze-ing.', color: '#ffffff' }, { text: 'js', color: '#ff4444' }];
-        console.log(text)        
 
         var title1 = new createjs.Text(text[0].text, "bold 35px Helvetica", text[0].color);
         var title2 = new createjs.Text(text[1].text, "bold 35px Helvetica", text[1].color);
@@ -170,6 +169,5 @@ export default class Menu {
         loadingText.y = gGameEngine.size.h / 2 - loadingText.getMeasuredHeight() / 2;
         gGameEngine.stage.addChild(loadingText);
         gGameEngine.stage.update();
-        console.log(gGameEngine);        
     }
 }
