@@ -117,9 +117,9 @@ export default class Player {
             // }
         }
 
-        // if (this.detectFireCollision()) {
-        //     this.die();
-        // }
+        if (this.detectEnemyCollision()) {
+            this.die();
+        }
         if (this.wood < 5) {
             this.handleWoodCollision();            
         }
@@ -203,42 +203,17 @@ export default class Player {
         return false;
     }
 
-    /**
-     * Returns true when the bomb collision is detected and we should not move to target position.
-     */
-    // detectBombCollision(pixels) {
-    //     var position = Utils.convertToEntityPosition(pixels);
-
-    //     for (var i = 0; i < gGameEngine.bombs.length; i++) {
-    //         var bomb = gGameEngine.bombs[i];
-    //         // Compare bomb position
-    //         if (bomb.position.x == position.x && bomb.position.y == position.y) {
-    //             // Allow to escape from bomb that appeared on my field
-    //             if (bomb == this.escapeBomb) {
-    //                 return false;
-    //             } else {
-    //                 return true;
-    //             }
-    //         }
-    //     }
-
-    //     return false;
-    // }
-
-    // detectFireCollision() {
-    //     var bombs = gGameEngine.bombs;
-    //     for (var i = 0; i < bombs.length; i++) {
-    //         var bomb = bombs[i];
-    //         for (var j = 0; j < bomb.fires.length; j++) {
-    //             var fire = bomb.fires[j];
-    //             var collision = bomb.exploded && fire.position.x == this.position.x && fire.position.y == this.position.y;
-    //             if (collision) {
-    //                 return true;
-    //             }
-    //         }
-    //     }
-    //     return false;
-    // }
+    detectEnemyCollision() {
+        var enemies = gGameEngine.enemies;
+        for (var i = 0; i < enemies.length; i++) {
+            var enemy = enemies[i];
+            var collision = enemy.position.x == this.position.x && enemy.position.y == this.position.y;
+            if (collision) {
+                return true;
+            }
+        }
+        return false;
+    }
 
     /**
      * Checks whether we have got bonus and applies it.
@@ -262,32 +237,30 @@ export default class Player {
         }
     }
 
-    // die() {
-    //     this.alive = false;
+    die() {
+        this.alive = false;
 
-    //     if (gGameEngine.countPlayersAlive() == 1 && gGameEngine.playersCount == 2) {
-    //         gGameEngine.gameOver('win');
-    //     } else if (gGameEngine.countPlayersAlive() == 0) {
-    //         gGameEngine.gameOver('lose');
-    //     }
+        if (gGameEngine.countPlayersAlive() == 0) {
+            gGameEngine.gameOver('Game Over');
+        }
 
-    //     this.bmp.gotoAndPlay('dead');
-    //     this.fade();
-    // }
+        this.bmp.gotoAndPlay('dead');
+        this.fade();
+    }
 
-    // fade() {
-    //     var timer = 0;
-    //     var bmp = this.bmp;
-    //     var fade = setInterval(function () {
-    //         timer++;
+    fade() {
+        var timer = 0;
+        var bmp = this.bmp;
+        var fade = setInterval(function () {
+            timer++;
 
-    //         if (timer > 30) {
-    //             bmp.alpha -= 0.05;
-    //         }
-    //         if (bmp.alpha <= 0) {
-    //             clearInterval(fade);
-    //         }
+            if (timer > 30) {
+                bmp.alpha -= 0.05;
+            }
+            if (bmp.alpha <= 0) {
+                clearInterval(fade);
+            }
 
-    //     }, 30);
-    // }
+        }, 30);
+    }
 }
