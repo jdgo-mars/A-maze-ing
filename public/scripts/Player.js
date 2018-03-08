@@ -27,13 +27,6 @@ export default class Player {
         }
 
         var img = gGameEngine.playerBoyImg;
-        // if (!(this instanceof Bot)) {
-        //     if (this.id == 0) {
-        //         img = gGameEngine.playerGirlImg;
-        //     } else {
-        //         img = gGameEngine.playerGirl2Img;
-        //     }
-        // }
 
         var spriteSheet = new createjs.SpriteSheet({
             images: [img],
@@ -56,8 +49,6 @@ export default class Player {
 
         gGameEngine.stage.addChild(this.bmp);
 
-        // this.bombs = [];
-        // this.setBombsListener();
     }
 
     update() {
@@ -93,28 +84,26 @@ export default class Player {
         }
 
         if (position.x != this.bmp.x || position.y != this.bmp.y) {
-            // if (!this.detectBombCollision(position)) {
-                if (this.detectWallCollision(position)) {
-                    // If we are on the corner, move to the aisle
-                    var cornerFix = this.getCornerFix(dirX, dirY);
-                    if (cornerFix) {
-                        var fixX = 0;
-                        var fixY = 0;
-                        if (dirX) {
-                            fixY = (cornerFix.y - this.bmp.y) > 0 ? 1 : -1;
-                        } else {
-                            fixX = (cornerFix.x - this.bmp.x) > 0 ? 1 : -1;
-                        }
-                        this.bmp.x += fixX * this.velocity;
-                        this.bmp.y += fixY * this.velocity;
-                        this.updatePosition();
+            if (this.detectWallCollision(position)) {
+                // If we are on the corner, move to the aisle
+                var cornerFix = this.getCornerFix(dirX, dirY);
+                if (cornerFix) {
+                    var fixX = 0;
+                    var fixY = 0;
+                    if (dirX) {
+                        fixY = (cornerFix.y - this.bmp.y) > 0 ? 1 : -1;
+                    } else {
+                        fixX = (cornerFix.x - this.bmp.x) > 0 ? 1 : -1;
                     }
-                } else {
-                    this.bmp.x = position.x;
-                    this.bmp.y = position.y;
+                    this.bmp.x += fixX * this.velocity;
+                    this.bmp.y += fixY * this.velocity;
                     this.updatePosition();
                 }
-            // }
+            } else {
+                this.bmp.x = position.x;
+                this.bmp.y = position.y;
+                this.updatePosition();
+            }
         }
 
         if (this.detectEnemyCollision()) {
@@ -122,6 +111,9 @@ export default class Player {
         }
         if (this.wood < 5) {
             this.handleWoodCollision();            
+        }
+        if (this.didWin(position, this.wood)) {
+            gGameEngine.gameOver('win');
         }
     }
 
@@ -197,6 +189,31 @@ export default class Player {
             tile.bottom = tile.top + gGameEngine.tileSize - 30;
 
             if (gGameEngine.intersectRect(player, tile)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    didWin(position, woodCount) {
+        var player = {};
+        player.left = position.x;
+        player.top = position.y;
+        player.right = player.left + this.size.w;
+        player.bottom = player.top + this.size.h;
+
+        // Check possible collision with all wall and wood tiles
+        var tiles = gGameEngine.towerEdgeTiles;
+        for (var i = 0; i < tiles.length; i++) {
+            var tilePosition = tiles[i].position;
+
+            var tile = {};
+            tile.left = tilePosition.x * gGameEngine.tileSize + 25;
+            tile.top = tilePosition.y * gGameEngine.tileSize + 20;
+            tile.right = tile.left + gGameEngine.tileSize - 30;
+            tile.bottom = tile.top + gGameEngine.tileSize - 30;
+
+            if (gGameEngine.intersectRect(player, tile) && woodCount === 5) {
                 return true;
             }
         }

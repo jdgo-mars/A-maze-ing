@@ -4,7 +4,6 @@ export default class Menu {
     constructor() {
         this.visible = true;
         this.views = [];
-        // gGameEngine.botsCount = 4;
         gGameEngine.playersCount = 0;
         this.showLoader();
     }
@@ -42,10 +41,8 @@ export default class Menu {
     setMode(mode) {
         this.hide();
         if (mode == 'single') {
-            // gGameEngine.botsCount = 3;
             gGameEngine.playersCount = 1;
         } else {
-            // gGameEngine.botsCount = 2;
             gGameEngine.playersCount = 2;
         }
 

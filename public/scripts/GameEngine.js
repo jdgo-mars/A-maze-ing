@@ -7,16 +7,15 @@ import Tile from './Tile.js';
 import Player from './Player.js';
 import Enemy from './Enemy.js';
 import Wood from './Wood.js';
+import Princess from './Princess.js';
 
 class GameEngine {
   constructor() {
     this.tileSize = 32;
-    this.tilesX = 45;
+    this.tilesX = 41;
     this.tilesY = 21;
     this.fps = 50;
-    // this.botsCount = 2 /* 0 - 3 */;
-    this.playersCount = 1 /* 1 - 2 */;
-    // this.bonusesPercent = 16;
+    this.playersCount = 1;
     this.woodDistributionRatio = 12;
 
     this.stage = null;
@@ -25,13 +24,12 @@ class GameEngine {
     this.enemies = [];
     this.tiles = [];
     this.grassTiles = [];
+    this.towerEdgeTiles = [];
     this.woods = [];
 
     this.playerBoyImg = null;
-    this.playerGirlImg = null;
+    this.princessImg = null;
     this.tilesImgs = {};
-    // this.bombImg = null;
-    // this.fireImg = null;
     this.woodImg = null;
     this.enemyImg = null;
 
@@ -41,7 +39,7 @@ class GameEngine {
     // this.soundtrackPlaying = false;
     // this.soundtrack = null;
     this.size = {
-      w: this.tileSize * this.tilesX,
+      w: this.tileSize * (this.tilesX + 4),
       h: this.tileSize * this.tilesY
     };
   }
@@ -49,14 +47,13 @@ class GameEngine {
   load() {
     // Init canvas
     this.stage = new createjs.Stage("game");
-    // this.stage.enableMouseOver();
 
     // Load assets
     var queue = new createjs.LoadQueue();
     var that = this;
     queue.addEventListener('complete', function() {
       that.playerBoyImg = queue.getResult('playerBoy');
-      that.playerGirlImg = queue.getResult('playerGirl'); 
+      that.princessImg = queue.getResult('princess'); 
       that.woodImg = queue.getResult('wood'); 
       that.enemyImg = queue.getResult('enemy'); 
       that.tilesImgs.grass = queue.getResult('tile_grass');
@@ -65,7 +62,7 @@ class GameEngine {
     });
     queue.loadManifest([
       { id: 'playerBoy', src: 'img/george.png' },
-      { id: 'playerGirl', src: 'img/betty.png' },
+      { id: 'princess', src: 'img/betty.png' },
       { id: 'wood', src: 'img/wood.png' },
       { id: 'enemy', src: 'img/dino.png' },
       { id: 'tile_grass', src: 'img/tile_grass.png' },
@@ -86,9 +83,9 @@ class GameEngine {
       gInputEngine.setup();
     }
 
-    // this.bombs = [];
     this.tiles = [];
     this.grassTiles = [];
+    this.towerEdgeTiles = [];
     this.woods = [];
     this.enemies = [];
 
@@ -98,6 +95,8 @@ class GameEngine {
 
     this.spawnEnemies();
     this.spawnPlayers();
+
+    var princess = new Princess({ x: this.tilesX + 1, y: Math.floor(this.tilesY / 2)});
 
     // Toggle sound
     // gInputEngine.addListener('mute', this.toggleSound);
@@ -169,12 +168,6 @@ class GameEngine {
       enemy.update();
     }
 
-    // // Bombs
-    // for (var i = 0; i < gGameEngine.bombs.length; i++) {
-    //   var bomb = gGameEngine.bombs[i];
-    //   bomb.update();
-    // }
-
     // Menu
     gGameEngine.menu.update();
 
@@ -241,7 +234,7 @@ class GameEngine {
   }
 
   drawTiles() {
-    var mazeCells = this.generateMaze(22,10);
+    var mazeCells = this.generateMaze(20,10);
 
     for (var i = 0; i < this.tilesY; i++) {
       for (var j = 0; j < this.tilesX; j++) {
@@ -261,6 +254,40 @@ class GameEngine {
           var tile = new Tile('grass', { x: j, y: i });
           this.stage.addChild(tile.bmp);
           this.grassTiles.push(tile);
+        }
+      }
+    }
+
+    var verticalTowerEdge = (Math.floor(this.tilesY / 2)) - 2;
+
+    for (var i = 0; i < 6; i++) {
+      for (var j = 0; j < 4; j++) {
+        if (
+          i === 0 ||
+          j === 0 ||
+          i >= 4 ||
+          j === 3
+        ) {
+          var tile = new Tile('wall', { x: this.tilesX - 1 + j, y: verticalTowerEdge + i });
+          if (j === 0) {
+            this.towerEdgeTiles.push(tile);
+          } else {
+            this.stage.addChild(tile.bmp);
+          }
+        } else {
+          var tile = new Tile('grass', { x: this.tilesX - 1 + j, y: verticalTowerEdge + i });
+          this.stage.addChild(tile.bmp);
+        }
+      }
+    }
+
+    console.log(this.towerEdgeTiles);
+
+    for (var i = 0; i < this.tilesY; i++) {
+      for (var j = 0; j < 4; j++) {
+        if (i < verticalTowerEdge || i > verticalTowerEdge + 5) {
+          var tile = new Tile('grass', { x: this.tilesX + j, y: i });
+          this.stage.addChild(tile.bmp);
         }
       }
     }
@@ -354,7 +381,6 @@ class GameEngine {
         left: 'left2',
         down: 'down2',
         right: 'right2',
-        // bomb: 'bomb2'
       };
       var player2 = new Player(
         { x: this.tilesX - 2, y: this.tilesY - 2 },
