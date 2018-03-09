@@ -32,6 +32,29 @@ class GameEngine {
     this.tilesImgs = {};
     this.woodImg = null;
     this.enemyImg = null;
+    this.maze = [
+      [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+      [1,0,0,1,1,0,0,0,1,0,1,1,1,0,0,0,1,0,0,0,1,0,1,0,1,0,0,0,1,0,0,0,1,1,1,1,1,1,1,1,1],
+      [1,0,0,1,1,0,1,1,1,0,1,1,1,0,1,0,1,0,1,1,1,0,1,0,1,0,1,0,1,0,1,1,1,1,1,1,1,1,1,1,1],
+      [1,1,1,1,1,0,1,1,1,0,1,1,1,0,1,0,1,0,0,0,1,0,1,0,1,0,0,0,1,0,0,0,1,1,1,1,1,1,1,1,1],
+      [1,1,1,1,1,0,1,1,1,0,1,1,1,0,1,0,1,1,1,0,1,0,1,0,1,0,0,1,1,0,1,1,1,1,1,1,1,1,1,1,1],
+      [1,1,1,1,1,0,0,0,1,0,0,0,1,0,0,0,1,0,0,0,1,0,0,0,1,0,1,0,1,0,0,0,1,1,1,1,1,1,1,1,1],
+      [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+      [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+      [1,1,1,1,1,1,1,1,1,1,1,0,1,1,1,0,1,0,0,0,1,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,1,1],
+      [1,1,1,1,1,1,1,1,1,1,1,0,1,1,1,0,1,0,1,0,1,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,1,1,0,1],
+      [1,1,1,1,1,1,1,1,1,1,1,0,1,0,1,0,1,0,0,0,1,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,1],
+      [1,1,1,1,1,1,1,1,1,1,1,0,0,1,0,0,1,0,1,0,1,1,1,0,1,1,1,1,1,1,1,1,1,1,1,1,0,1,1,0,1],
+      [1,1,1,1,1,1,1,1,1,1,1,0,1,1,1,0,1,0,1,0,1,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,1,1],
+      [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+      [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+      [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,1,0,1,0,0,0,1,0,0,0,1,0,0,0,1,0,1,1,1,1,1,1,1],
+      [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,1,0,1,0,1,1,1,0,1,0,1,0,1,1,1,0,1,1,1,1,1,1,1],
+      [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,1,0,0,0,1,0,0,0,1,0,0,0,1,0,1,1,1,1,1,1,1],
+      [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,1,0,1,0,1,1,1,0,0,1,1,0,1,1,1,1,1,1,1,1,1,1,1],
+      [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,1,0,1,0,0,0,1,0,1,0,1,0,0,0,1,0,1,1,1,1,1,1,1],
+      [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+  ]
 
     // this.playing = false;
     // this.mute = false;
@@ -75,7 +98,7 @@ class GameEngine {
     // createjs.Sound.registerSound('sound/game.ogg', 'game');
 
     // Create menu
-    this.menu = new Menu();
+    // this.menu = new Menu();
   }
 
   setup() {
@@ -91,9 +114,9 @@ class GameEngine {
 
     // Draw tiles
     this.drawTiles();
-    this.drawWoods();
+    // this.drawWoods();
 
-    this.spawnEnemies();
+    // this.spawnEnemies();
     this.spawnPlayers();
 
     var princess = new Princess({ x: this.tilesX + 1, y: Math.floor(this.tilesY / 2)});
@@ -134,7 +157,7 @@ class GameEngine {
     // }
 
     if (!this.playing) {
-      this.menu.show();
+      // this.menu.show();
     }
   }
 
@@ -169,7 +192,7 @@ class GameEngine {
     }
 
     // Menu
-    gGameEngine.menu.update();
+    // gGameEngine.menu.update();
 
     // Stage
     gGameEngine.stage.update();
@@ -234,22 +257,23 @@ class GameEngine {
   }
 
   drawTiles() {
-    var mazeCells = this.generateMaze(20,10);
+    // var mazeCells = this.generateMaze(20,10);
 
     for (var i = 0; i < this.tilesY; i++) {
       for (var j = 0; j < this.tilesX; j++) {
-        if (
-          i == 0 ||
-          j == 0 ||
-          i == this.tilesY - 1 ||
-          j == this.tilesX - 1 ||
-          (j % 2 == 0 && i % 2 == 0)
+        if ( this.maze[i][j] === 1
+          // i == 0 ||
+          // j == 0 ||
+          // i == this.tilesY - 1 ||
+          // j == this.tilesX - 1
+          // (j % 2 == 0 && i % 2 == 0)
         ) {
           // Wall tiles
           var tile = new Tile('wall', { x: j, y: i });
           this.stage.addChild(tile.bmp);
           this.tiles.push(tile);
-        } else if (j % 2 == 1 && i % 2 == 1 && j !== this.tilesX - 1 && i !== this.tilesY - 1){
+        } else {
+          // if (j % 2 == 1 && i % 2 == 1 && j !== this.tilesX - 1 && i !== this.tilesY - 1){
           // Grass tiles
           var tile = new Tile('grass', { x: j, y: i });
           this.stage.addChild(tile.bmp);
@@ -281,8 +305,6 @@ class GameEngine {
       }
     }
 
-    console.log(this.towerEdgeTiles);
-
     for (var i = 0; i < this.tilesY; i++) {
       for (var j = 0; j < 4; j++) {
         if (i < verticalTowerEdge || i > verticalTowerEdge + 5) {
@@ -292,32 +314,32 @@ class GameEngine {
       }
     }
 
-    for (var i = 0; i < mazeCells.length; i++) {
-      for (var j = 0; j < mazeCells[0].length; j++) {
-        if (mazeCells[i][j][1] === 0) {
-          // Wall tiles
-          var tile = new Tile('wall', { x: ((2 * j) + 2), y: ((2 * i) + 1) });
-          this.stage.addChild(tile.bmp);
-          this.tiles.push(tile);
-        } else {
-          // Grass tiles
-          var tile = new Tile('grass', { x: ((2 * j) + 2), y: ((2 * i) + 1) });
-          this.stage.addChild(tile.bmp);
-          this.grassTiles.push(tile);
-        }
-        if (mazeCells[i][j][2] === 0) {
-          // Wall tiles
-          var tile = new Tile('wall', { x: ((2 * j) + 1), y: ((2 * i) + 2) });
-          this.stage.addChild(tile.bmp);
-          this.tiles.push(tile);
-        } else {
-          // Grass tiles
-          var tile = new Tile('grass', { x: ((2 * j) + 1), y: ((2 * i) + 2) });
-          this.stage.addChild(tile.bmp);
-          this.grassTiles.push(tile);
-        }
-      }
-    }
+    // for (var i = 0; i < mazeCells.length; i++) {
+    //   for (var j = 0; j < mazeCells[0].length; j++) {
+    //     if (mazeCells[i][j][1] === 0) {
+    //       // Wall tiles
+    //       var tile = new Tile('wall', { x: ((2 * j) + 2), y: ((2 * i) + 1) });
+    //       this.stage.addChild(tile.bmp);
+    //       this.tiles.push(tile);
+    //     } else {
+    //       // Grass tiles
+    //       var tile = new Tile('grass', { x: ((2 * j) + 2), y: ((2 * i) + 1) });
+    //       this.stage.addChild(tile.bmp);
+    //       this.grassTiles.push(tile);
+    //     }
+    //     if (mazeCells[i][j][2] === 0) {
+    //       // Wall tiles
+    //       var tile = new Tile('wall', { x: ((2 * j) + 1), y: ((2 * i) + 2) });
+    //       this.stage.addChild(tile.bmp);
+    //       this.tiles.push(tile);
+    //     } else {
+    //       // Grass tiles
+    //       var tile = new Tile('grass', { x: ((2 * j) + 1), y: ((2 * i) + 2) });
+    //       this.stage.addChild(tile.bmp);
+    //       this.grassTiles.push(tile);
+    //     }
+    //   }
+    // }
   }
 
   drawWoods() {

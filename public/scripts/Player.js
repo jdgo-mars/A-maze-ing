@@ -56,9 +56,9 @@ export default class Player {
             //this.fade();
             return;
         }
-        if (gGameEngine.menu.visible) {
-            return;
-        }
+        // if (gGameEngine.menu.visible) {
+        //     return;
+        // }
         var position = { x: this.bmp.x, y: this.bmp.y };
 
         var dirX = 0;
