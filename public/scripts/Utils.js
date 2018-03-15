@@ -1,10 +1,10 @@
 import gGameEngine from './GameEngine.js';
-var Utils = {};
+const Utils = {};
 
 /**
  * Returns true if positions are equal.
  */
-Utils.comparePositions = function (pos1, pos2) {
+Utils.comparePositions = (pos1, pos2) => {
     return pos1.x == pos2.x && pos1.y == pos2.y;
 };
 
@@ -12,8 +12,8 @@ Utils.comparePositions = function (pos1, pos2) {
 /**
  * Convert bitmap pixels position to entity on grid position.
  */
-Utils.convertToEntityPosition = function (pixels) {
-    var position = {};
+Utils.convertToEntityPosition = (pixels) => {
+    const position = {};
     position.x = Math.round(pixels.x / gGameEngine.tileSize);
     position.y = Math.round(pixels.y / gGameEngine.tileSize);
     return position;
@@ -22,8 +22,8 @@ Utils.convertToEntityPosition = function (pixels) {
 /**
  * Convert entity on grid position to bitmap pixels position.
  */
-Utils.convertToBitmapPosition = function (entity) {
-    var position = {};
+Utils.convertToBitmapPosition = (entity) => {
+    const position = {};
     position.x = entity.x * gGameEngine.tileSize;
     position.y = entity.y * gGameEngine.tileSize;
     return position;
@@ -32,8 +32,8 @@ Utils.convertToBitmapPosition = function (entity) {
 /**
  * Removes an item from array.
  */
-Utils.removeFromArray = function (array, item) {
-    for (var i = 0; i < array.length; i++) {
+Utils.removeFromArray = (array, item) => {
+    for (let i = 0; i < array.length; i++) {
         if (item == array[i]) {
             array.splice(i, 1);
         }
