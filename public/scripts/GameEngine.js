@@ -1,3 +1,4 @@
+import gInputEngine from './InputEngine.js';
 import Tile from './Tile.js';
 import Princess from './Princess.js';
 
@@ -70,6 +71,11 @@ class GameEngine {
     }
 
     setup() {
+        // Init input engine
+        if (!gInputEngine.bindings.length) {
+            gInputEngine.setup();
+        }
+
         // Reset environment states
         this.tiles = [];
         this.grassTiles = [];
@@ -89,6 +95,16 @@ class GameEngine {
     }
 
     update() {
+        if (gInputEngine.actions['up']) {
+            console.log('woah, you are going up');
+        } else if (gInputEngine.actions['down']) {
+            console.log('Are you feeling down?');
+        } else if (gInputEngine.actions['left']) {
+            console.log('To the left, to the left');
+        } else if (gInputEngine.actions['right']) {
+            console.log('Yes yes, you are always right');
+        }
+
         // Stage
         gGameEngine.stage.update();
     }
