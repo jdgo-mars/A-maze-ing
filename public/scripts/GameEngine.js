@@ -1,6 +1,7 @@
 import gInputEngine from './InputEngine.js';
 import Tile from './Tile.js';
 import Princess from './Princess.js';
+import Player from './Player.js';
 
 class GameEngine {
     constructor() {
@@ -18,9 +19,11 @@ class GameEngine {
         };
 
         // Asset Objects
-        this.tilesImgs = {};        
+        this.playerBoyImg = null;
+        this.tilesImgs = {};
 
         // Environment Arrays
+        this.players = [];
         this.tiles = [];
         this.grassTiles = [];
         this.towerEdgeTiles = [];
@@ -58,12 +61,14 @@ class GameEngine {
         const queue = new createjs.LoadQueue();
         const that = this;
         queue.addEventListener('complete', () => {
+            that.playerBoyImg = queue.getResult('player');
             that.princessImg = queue.getResult('princess');
             that.tilesImgs.grass = queue.getResult('tile_grass');
             that.tilesImgs.wall = queue.getResult('tile_wall');
             that.setup();
         });
         queue.loadManifest([
+            { id: 'player', src: 'img/george.png' },
             { id: 'princess', src: 'img/betty.png' },
             { id: 'tile_grass', src: 'img/tile_grass.png' },
             { id: 'tile_wall', src: 'img/tile_wall.png' }
@@ -84,6 +89,9 @@ class GameEngine {
         // Draw tiles
         this.drawTiles();
 
+        // Spawn yourself
+        this.spawnPlayers();
+
         // Lock the princess in the tower >:(
         var princess = new Princess({ x: this.tilesX + 1, y: Math.floor(this.tilesY / 2) });
 
@@ -95,14 +103,10 @@ class GameEngine {
     }
 
     update() {
-        if (gInputEngine.actions['up']) {
-            console.log('woah, you are going up');
-        } else if (gInputEngine.actions['down']) {
-            console.log('Are you feeling down?');
-        } else if (gInputEngine.actions['left']) {
-            console.log('To the left, to the left');
-        } else if (gInputEngine.actions['right']) {
-            console.log('Yes yes, you are always right');
+        // Player
+        for (var i = 0; i < gGameEngine.players.length; i++) {
+            var player = gGameEngine.players[i];
+            player.update();
         }
 
         // Stage
@@ -161,6 +165,41 @@ class GameEngine {
                 }
             }
         }
+    }
+
+    spawnPlayers() {
+        this.players = [];
+
+        const player = new Player({ x: 1, y: 1 });
+        this.players.push(player);
+    }
+
+    
+    // Checks whether two rectangles intersect.
+    intersectRect(a, b) {
+        return (
+            a.left <= b.right &&
+            b.left <= a.right &&
+            a.top <= b.bottom &&
+            b.top <= a.bottom
+        );
+    }
+
+    
+    // Returns tile at given position.
+    getTile(position) {
+        for (var i = 0; i < this.tiles.length; i++) {
+            var tile = this.tiles[i];
+            if (tile.position.x == position.x && tile.position.y == position.y) {
+                return tile;
+            }
+        }
+    }
+
+    // Returns tile material at given position.
+    getTileMaterial(position) {
+        var tile = this.getTile(position);
+        return tile ? tile.material : 'grass';
     }
 }
 
