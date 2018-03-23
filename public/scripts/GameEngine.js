@@ -93,7 +93,7 @@ class GameEngine {
         this.spawnPlayers();
 
         // Lock the princess in the tower >:(
-        var princess = new Princess({ x: this.tilesX + 1, y: Math.floor(this.tilesY / 2) });
+        const princess = new Princess({ x: this.tilesX + 1, y: Math.floor(this.tilesY / 2) });
 
         // Start loop
         if (!createjs.Ticker.hasEventListener('tick')) {
@@ -104,8 +104,8 @@ class GameEngine {
 
     update() {
         // Player
-        for (var i = 0; i < gGameEngine.players.length; i++) {
-            var player = gGameEngine.players[i];
+        for (let i = 0; i < gGameEngine.players.length; i++) {
+            let player = gGameEngine.players[i];
             player.update();
         }
 
@@ -188,8 +188,8 @@ class GameEngine {
     
     // Returns tile at given position.
     getTile(position) {
-        for (var i = 0; i < this.tiles.length; i++) {
-            var tile = this.tiles[i];
+        for (let i = 0; i < this.tiles.length; i++) {
+            const tile = this.tiles[i];
             if (tile.position.x == position.x && tile.position.y == position.y) {
                 return tile;
             }
@@ -198,7 +198,7 @@ class GameEngine {
 
     // Returns tile material at given position.
     getTileMaterial(position) {
-        var tile = this.getTile(position);
+        const tile = this.getTile(position);
         return tile ? tile.material : 'grass';
     }
 }

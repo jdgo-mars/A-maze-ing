@@ -25,9 +25,9 @@ export default class Player {
             this.controls = controls;
         }
 
-        var img = gGameEngine.playerBoyImg;
+        const img = gGameEngine.playerBoyImg;
 
-        var spriteSheet = new createjs.SpriteSheet({
+        const spriteSheet = new createjs.SpriteSheet({
             images: [img],
             frames: { width: this.size.w, height: this.size.h, regX: 10, regY: 12 },
             animations: {
@@ -42,7 +42,7 @@ export default class Player {
         this.bmp = new createjs.Sprite(spriteSheet);
 
         this.position = position;
-        var pixels = Utils.convertToBitmapPosition(position);
+        const pixels = Utils.convertToBitmapPosition(position);
         this.bmp.x = pixels.x;
         this.bmp.y = pixels.y;
 
@@ -54,10 +54,10 @@ export default class Player {
         if (!this.alive) {
             return;
         }
-        var position = { x: this.bmp.x, y: this.bmp.y };
+        const position = { x: this.bmp.x, y: this.bmp.y };
 
-        var dirX = 0;
-        var dirY = 0;
+        let dirX = 0;
+        let dirY = 0;
         if (gInputEngine.actions[this.controls.up]) {
             this.animate('up');
             position.y -= this.velocity;
@@ -81,10 +81,10 @@ export default class Player {
         if (position.x != this.bmp.x || position.y != this.bmp.y) {
             if (this.detectWallCollision(position)) {
                 // If we are on the corner, move to the aisle
-                var cornerFix = this.getCornerFix(dirX, dirY);
+                const cornerFix = this.getCornerFix(dirX, dirY);
                 if (cornerFix) {
-                    var fixX = 0;
-                    var fixY = 0;
+                    let fixX = 0;
+                    let fixY = 0;
                     if (dirX) {
                         fixY = (cornerFix.y - this.bmp.y) > 0 ? 1 : -1;
                     } else {
@@ -105,17 +105,17 @@ export default class Player {
     
     // Checks whether we are on corner to target position. Returns position where we should move before we can go to target.
     getCornerFix(dirX, dirY) {
-        var edgeSize = 30;
+        const edgeSize = 30;
 
         // fix position to where we should go first
-        var position = {};
+        const position = {};
 
         // possible fix position we are going to choose from
-        var pos1 = { x: this.position.x + dirY, y: this.position.y + dirX };
-        var bmp1 = Utils.convertToBitmapPosition(pos1);
+        const pos1 = { x: this.position.x + dirY, y: this.position.y + dirX };
+        const bmp1 = Utils.convertToBitmapPosition(pos1);
 
-        var pos2 = { x: this.position.x - dirY, y: this.position.y - dirX };
-        var bmp2 = Utils.convertToBitmapPosition(pos2);
+        const pos2 = { x: this.position.x - dirY, y: this.position.y - dirX };
+        const bmp2 = Utils.convertToBitmapPosition(pos2);
 
         // in front of current position
         if (gGameEngine.getTileMaterial({ x: this.position.x + dirX, y: this.position.y + dirY }) == 'grass') {
@@ -153,18 +153,18 @@ export default class Player {
     // Returns true when collision is detected and we should not move to target position
     
     detectWallCollision(position) {
-        var player = {};
+        const player = {};
         player.left = position.x;
         player.top = position.y;
         player.right = player.left + this.size.w;
         player.bottom = player.top + this.size.h;
 
         // Check possible collision with all wall and wood tiles
-        var tiles = gGameEngine.tiles;
-        for (var i = 0; i < tiles.length; i++) {
-            var tilePosition = tiles[i].position;
+        const tiles = gGameEngine.tiles;
+        for (let i = 0; i < tiles.length; i++) {
+            const tilePosition = tiles[i].position;
 
-            var tile = {};
+            const tile = {};
             tile.left = tilePosition.x * gGameEngine.tileSize + 25;
             tile.top = tilePosition.y * gGameEngine.tileSize + 20;
             tile.right = tile.left + gGameEngine.tileSize - 30;
