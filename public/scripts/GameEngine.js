@@ -2,6 +2,7 @@ import gInputEngine from './InputEngine.js';
 import Tile from './Tile.js';
 import Princess from './Princess.js';
 import Player from './Player.js';
+import Wood from './Wood.js';
 
 class GameEngine {
     constructor() {
@@ -20,10 +21,12 @@ class GameEngine {
 
         // Asset Objects
         this.playerBoyImg = null;
+        this.woodImg = null;
         this.tilesImgs = {};
 
         // Environment Arrays
         this.players = [];
+        this.woods = [];
         this.tiles = [];
         this.grassTiles = [];
         this.towerEdgeTiles = [];
@@ -63,6 +66,7 @@ class GameEngine {
         queue.addEventListener('complete', () => {
             that.playerBoyImg = queue.getResult('player');
             that.princessImg = queue.getResult('princess');
+            that.woodImg = queue.getResult('wood'); 
             that.tilesImgs.grass = queue.getResult('tile_grass');
             that.tilesImgs.wall = queue.getResult('tile_wall');
             that.setup();
@@ -70,6 +74,7 @@ class GameEngine {
         queue.loadManifest([
             { id: 'player', src: 'img/george.png' },
             { id: 'princess', src: 'img/betty.png' },
+            { id: 'wood', src: 'img/wood.png' },
             { id: 'tile_grass', src: 'img/tile_grass.png' },
             { id: 'tile_wall', src: 'img/tile_wall.png' }
         ]);
@@ -88,6 +93,9 @@ class GameEngine {
 
         // Draw tiles
         this.drawTiles();
+
+        // Add wood logs on the map
+        this.drawWoods();
 
         // Spawn yourself
         this.spawnPlayers();
@@ -166,6 +174,26 @@ class GameEngine {
             }
         }
     }
+
+    drawWoods() {
+        // Cache woods tiles
+        const available = [];
+        for (let i = 0; i < this.grassTiles.length; i++) {
+          const tile = this.grassTiles[i];    
+          available.push(tile);
+        }
+    
+        // Sort tiles randomly
+        available.sort(() => {
+          return 0.5 - Math.random();
+        });
+    
+        for (let i = 0; i < 5; i++) {
+            const tile = available[i];
+            const wood = new Wood(tile.position);
+            this.woods.push(wood);
+        }
+      }
 
     spawnPlayers() {
         this.players = [];
