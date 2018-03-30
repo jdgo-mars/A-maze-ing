@@ -1,11 +1,5 @@
 import gGameEngine from './GameEngine.js';
 
 window.init = () => {
-  gGameEngine.load();  
+    gGameEngine.load();
 }
-
-const socket = io();
-
-socket.on('connected', res => {
-  console.log(res);
-});

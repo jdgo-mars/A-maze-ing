@@ -16,8 +16,8 @@ export default class Enemy {
         this.wait = false;
         this.started = false;
         this.startTimerMax = Math.random() * 60;
-        var img = gGameEngine.enemyImg;
-        var spriteSheet = new createjs.SpriteSheet({
+        const img = gGameEngine.enemyImg;
+        const spriteSheet = new createjs.SpriteSheet({
             images: [img],
             frames: { width: this.size.w, height: this.size.h, regX: 10 },
             animations: {
@@ -29,7 +29,7 @@ export default class Enemy {
         this.bmp = new createjs.Sprite(spriteSheet);
 
         this.position = position;
-        var pixels = Utils.convertToBitmapPosition(position);
+        const pixels = Utils.convertToBitmapPosition(position);
         this.bmp.x = pixels.x;
         this.bmp.y = pixels.y;
 
@@ -64,9 +64,9 @@ export default class Enemy {
 
         this.animate(this.direction);
 
-        var velocity = this.velocity;
+        const velocity = this.velocity;
 
-        var targetPosition = { x: this.bmp.x + this.dirX * velocity, y: this.bmp.y + this.dirY * velocity };
+        const targetPosition = { x: this.bmp.x + this.dirX * velocity, y: this.bmp.y + this.dirY * velocity };
         if(this.detectWallCollision(targetPosition)) {
             if (this.dirX == 0) {
                 this.dirY = this.dirY * (-1);
@@ -92,18 +92,17 @@ export default class Enemy {
     }
 
     detectWallCollision(position) {
-        var enemy = {};
+        const enemy = {};
         enemy.left = position.x;
         enemy.top = position.y;
         enemy.right = enemy.left + this.size.w;
         enemy.bottom = enemy.top + this.size.h;
 
-        // Check possible collision with all wall and wood tiles
-        var tiles = gGameEngine.tiles;
-        for (var i = 0; i < tiles.length; i++) {
-            var tilePosition = tiles[i].position;
+        const tiles = gGameEngine.tiles;
+        for (let i = 0; i < tiles.length; i++) {
+            const tilePosition = tiles[i].position;
 
-            var tile = {};
+            const tile = {};
             tile.left = tilePosition.x * gGameEngine.tileSize + 25;
             tile.top = tilePosition.y * gGameEngine.tileSize + 20;
             tile.right = tile.left + gGameEngine.tileSize - 30;

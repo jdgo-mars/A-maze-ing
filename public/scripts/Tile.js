@@ -12,7 +12,7 @@ export default class Tile {
         this.bmp = null;
         this.material = material;
         this.position = position;
-        var img;
+        let img;
         if (material == 'grass') {
             img = gGameEngine.tilesImgs.grass;
         } else if (material == 'wall') {
@@ -21,21 +21,13 @@ export default class Tile {
             img = gGameEngine.tilesImgs.wood;
         }
         this.bmp = new createjs.Bitmap(img);
-        var pixels = Utils.convertToBitmapPosition(position);
+        const pixels = Utils.convertToBitmapPosition(position);
         this.bmp.x = pixels.x;
         this.bmp.y = pixels.y;
     }
 
-    update() {
-    }
-
     remove() {
         gGameEngine.stage.removeChild(this.bmp);
-        for (var i = 0; i < gGameEngine.tiles.length; i++) {
-            var tile = gGameEngine.tiles[i];
-            if (this == tile) {
-                gGameEngine.tiles.splice(i, 1);
-            }
-        }
+        Utils.removeFromArray(gGameEngine.tiles, this);
     }
 }

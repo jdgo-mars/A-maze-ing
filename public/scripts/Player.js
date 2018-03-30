@@ -6,7 +6,6 @@ export default class Player {
     constructor(position, controls, id) {
         this.id = 0;
         this.velocity = 2;
-        this.wood = 0;
         this.size = {
             w: 48,
             h: 48
@@ -26,9 +25,9 @@ export default class Player {
             this.controls = controls;
         }
 
-        var img = gGameEngine.playerBoyImg;
+        const img = gGameEngine.playerBoyImg;
 
-        var spriteSheet = new createjs.SpriteSheet({
+        const spriteSheet = new createjs.SpriteSheet({
             images: [img],
             frames: { width: this.size.w, height: this.size.h, regX: 10, regY: 12 },
             animations: {
@@ -43,7 +42,7 @@ export default class Player {
         this.bmp = new createjs.Sprite(spriteSheet);
 
         this.position = position;
-        var pixels = Utils.convertToBitmapPosition(position);
+        const pixels = Utils.convertToBitmapPosition(position);
         this.bmp.x = pixels.x;
         this.bmp.y = pixels.y;
 
@@ -53,16 +52,12 @@ export default class Player {
 
     update() {
         if (!this.alive) {
-            //this.fade();
             return;
         }
-        if (gGameEngine.menu.visible) {
-            return;
-        }
-        var position = { x: this.bmp.x, y: this.bmp.y };
+        const position = { x: this.bmp.x, y: this.bmp.y };
 
-        var dirX = 0;
-        var dirY = 0;
+        let dirX = 0;
+        let dirY = 0;
         if (gInputEngine.actions[this.controls.up]) {
             this.animate('up');
             position.y -= this.velocity;
@@ -86,10 +81,10 @@ export default class Player {
         if (position.x != this.bmp.x || position.y != this.bmp.y) {
             if (this.detectWallCollision(position)) {
                 // If we are on the corner, move to the aisle
-                var cornerFix = this.getCornerFix(dirX, dirY);
+                let cornerFix = this.getCornerFix(dirX, dirY);
                 if (cornerFix) {
-                    var fixX = 0;
-                    var fixY = 0;
+                    let fixX = 0;
+                    let fixY = 0;
                     if (dirX) {
                         fixY = (cornerFix.y - this.bmp.y) > 0 ? 1 : -1;
                     } else {
@@ -105,34 +100,22 @@ export default class Player {
                 this.updatePosition();
             }
         }
-
-        if (this.detectEnemyCollision()) {
-            this.die();
-        }
-        if (this.wood < 5) {
-            this.handleWoodCollision();            
-        }
-        if (this.didWin(position, this.wood)) {
-            gGameEngine.gameOver('win');
-        }
     }
 
-    /**
-     * Checks whether we are on corner to target position.
-     * Returns position where we should move before we can go to target.
-     */
+    
+    // Checks whether we are on corner to target position. Returns position where we should move before we can go to target.
     getCornerFix(dirX, dirY) {
-        var edgeSize = 30;
+        const edgeSize = 30;
 
         // fix position to where we should go first
-        var position = {};
+        let position = {};
 
         // possible fix position we are going to choose from
-        var pos1 = { x: this.position.x + dirY, y: this.position.y + dirX };
-        var bmp1 = Utils.convertToBitmapPosition(pos1);
+        const pos1 = { x: this.position.x + dirY, y: this.position.y + dirX };
+        const bmp1 = Utils.convertToBitmapPosition(pos1);
 
-        var pos2 = { x: this.position.x - dirY, y: this.position.y - dirX };
-        var bmp2 = Utils.convertToBitmapPosition(pos2);
+        const pos2 = { x: this.position.x - dirY, y: this.position.y - dirX };
+        const bmp2 = Utils.convertToBitmapPosition(pos2);
 
         // in front of current position
         if (gGameEngine.getTileMaterial({ x: this.position.x + dirX, y: this.position.y + dirY }) == 'grass') {
@@ -160,29 +143,28 @@ export default class Player {
         }
     }
 
-    /**
-     * Calculates and updates entity position according to its actual bitmap position
-     */
+    
+    // Calculates and updates entity position according to its actual bitmap position
     updatePosition() {
         this.position = Utils.convertToEntityPosition(this.bmp);
     }
 
-    /**
-     * Returns true when collision is detected and we should not move to target position.
-     */
+    
+    // Returns true when collision is detected and we should not move to target position
+    
     detectWallCollision(position) {
-        var player = {};
+        const player = {};
         player.left = position.x;
         player.top = position.y;
         player.right = player.left + this.size.w;
         player.bottom = player.top + this.size.h;
 
         // Check possible collision with all wall and wood tiles
-        var tiles = gGameEngine.tiles;
-        for (var i = 0; i < tiles.length; i++) {
-            var tilePosition = tiles[i].position;
+        const tiles = gGameEngine.tiles;
+        for (let i = 0; i < tiles.length; i++) {
+            const tilePosition = tiles[i].position;
 
-            var tile = {};
+            const tile = {};
             tile.left = tilePosition.x * gGameEngine.tileSize + 25;
             tile.top = tilePosition.y * gGameEngine.tileSize + 20;
             tile.right = tile.left + gGameEngine.tileSize - 30;
@@ -195,89 +177,11 @@ export default class Player {
         return false;
     }
 
-    didWin(position, woodCount) {
-        var player = {};
-        player.left = position.x;
-        player.top = position.y;
-        player.right = player.left + this.size.w;
-        player.bottom = player.top + this.size.h;
-
-        // Check possible collision with all wall and wood tiles
-        var tiles = gGameEngine.towerEdgeTiles;
-        for (var i = 0; i < tiles.length; i++) {
-            var tilePosition = tiles[i].position;
-
-            var tile = {};
-            tile.left = tilePosition.x * gGameEngine.tileSize + 25;
-            tile.top = tilePosition.y * gGameEngine.tileSize + 20;
-            tile.right = tile.left + gGameEngine.tileSize - 30;
-            tile.bottom = tile.top + gGameEngine.tileSize - 30;
-
-            if (gGameEngine.intersectRect(player, tile) && woodCount === 5) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    detectEnemyCollision() {
-        var enemies = gGameEngine.enemies;
-        for (var i = 0; i < enemies.length; i++) {
-            var enemy = enemies[i];
-            var collision = enemy.position.x == this.position.x && enemy.position.y == this.position.y;
-            if (collision) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    /**
-     * Checks whether we have got bonus and applies it.
-     */
-    handleWoodCollision() {
-        for (var i = 0; i < gGameEngine.woods.length; i++) {
-            var wood = gGameEngine.woods[i];
-            if (Utils.comparePositions(wood.position, this.position)) {
-                this.wood += 1;
-                wood.destroy();
-            }
-        }
-    }
-
-    /**
-     * Changes animation if requested animation is not already current.
-     */
+    
+    // Changes animation if requested animation is not already current
     animate(animation) {
         if (!this.bmp.currentAnimation || this.bmp.currentAnimation.indexOf(animation) === -1) {
             this.bmp.gotoAndPlay(animation);
         }
-    }
-
-    die() {
-        this.alive = false;
-
-        if (gGameEngine.countPlayersAlive() == 0) {
-            gGameEngine.gameOver('Game Over');
-        }
-
-        this.bmp.gotoAndPlay('dead');
-        this.fade();
-    }
-
-    fade() {
-        var timer = 0;
-        var bmp = this.bmp;
-        var fade = setInterval(function () {
-            timer++;
-
-            if (timer > 30) {
-                bmp.alpha -= 0.05;
-            }
-            if (bmp.alpha <= 0) {
-                clearInterval(fade);
-            }
-
-        }, 30);
     }
 }
