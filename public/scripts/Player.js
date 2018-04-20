@@ -11,6 +11,7 @@ export default class Player {
             w: 48,
             h: 48
         };
+        this.health = 100;
         this.alive = true;
         this.controls = {
             'up': 'up',
@@ -54,9 +55,6 @@ export default class Player {
     update() {
         if (!this.alive) {
             //this.fade();
-            return;
-        }
-        if (gGameEngine.menu.visible) {
             return;
         }
         var position = { x: this.bmp.x, y: this.bmp.y };
@@ -107,6 +105,10 @@ export default class Player {
         }
 
         if (this.detectEnemyCollision()) {
+            this.health-= 10;
+            document.getElementById('lifeCount').innerHTML = this.health;
+        }
+        if (this.health === 0) {
             this.die();
         }
         if (this.wood < 5) {
@@ -241,6 +243,7 @@ export default class Player {
             if (Utils.comparePositions(wood.position, this.position)) {
                 this.wood += 1;
                 wood.destroy();
+                document.getElementById('woodCount').innerHTML = this.wood;
             }
         }
     }

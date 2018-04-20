@@ -2,7 +2,6 @@
 * https://github.com/MattSkala/html5-bombergirl/tree/master/js
 */
 import gInputEngine from './InputEngine.js';
-import Menu from './Menu.js';
 import Tile from './Tile.js';
 import Player from './Player.js';
 import Enemy from './Enemy.js';
@@ -19,7 +18,6 @@ class GameEngine {
     this.woodDistributionRatio = 12;
 
     this.stage = null;
-    this.menu = null;
     this.players = [];
     this.enemies = [];
     this.tiles = [];
@@ -33,11 +31,10 @@ class GameEngine {
     this.woodImg = null;
     this.enemyImg = null;
 
-    // this.playing = false;
-    // this.mute = false;
-    // this.soundtrackLoaded = false;
-    // this.soundtrackPlaying = false;
-    // this.soundtrack = null;
+    this.playing = false;
+    this.soundtrackLoaded = false;
+    this.soundtrackPlaying = false;
+    this.soundtrack = null;
     this.size = {
       w: this.tileSize * (this.tilesX + 4),
       h: this.tileSize * this.tilesY
@@ -69,13 +66,9 @@ class GameEngine {
       { id: 'tile_wall', src: 'img/tile_wall.png' },
     ]);
 
-    // createjs.Sound.addEventListener('fileload', this.onSoundLoaded);
-    // createjs.Sound.alternateExtensions = ['mp3'];
-    // createjs.Sound.registerSound('sound/bomb.ogg', 'bomb');
-    // createjs.Sound.registerSound('sound/game.ogg', 'game');
+    createjs.Sound.addEventListener('fileload', this.onSoundLoaded);
+    createjs.Sound.registerSound('sounds/game.mp3', 'game');
 
-    // Create menu
-    this.menu = new Menu();
   }
 
   setup() {
@@ -99,27 +92,7 @@ class GameEngine {
     var princess = new Princess({ x: this.tilesX + 1, y: Math.floor(this.tilesY / 2)});
 
     // Toggle sound
-    // gInputEngine.addListener('mute', this.toggleSound);
-
-    // Restart listener
-    // Timeout because when you press enter in address bar too long, it would not show menu
-    setTimeout(function() {
-      gInputEngine.addListener('restart', function() {
-        if (gGameEngine.playersCount == 0) {
-          gGameEngine.menu.setMode('single');
-        } else {
-          gGameEngine.menu.hide();
-          gGameEngine.restart();
-        }
-      });
-    }, 200);
-
-    // Escape listener
-    gInputEngine.addListener('escape', function() {
-      if (!gGameEngine.menu.visible) {
-        gGameEngine.menu.show();
-      }
-    });
+    gInputEngine.addListener('mute', this.toggleSound);
 
     // Start loop
     if (!createjs.Ticker.hasEventListener('tick')) {
@@ -127,33 +100,37 @@ class GameEngine {
       createjs.Ticker.setFPS(this.fps);
     }
 
-    // if (gGameEngine.playersCount > 0) {
-    //   if (this.soundtrackLoaded) {
-    //     this.playSoundtrack();
-    //   }
-    // }
-
-    if (!this.playing) {
-      this.menu.show();
+    if (gGameEngine.playersCount > 0) {
+      if (this.soundtrackLoaded) {
+        this.playSoundtrack();
+      }
     }
   }
 
-  // onSoundLoaded(sound) {
-  //   if (sound.id == 'game') {
-  //     gGameEngine.soundtrackLoaded = true;
-  //     if (gGameEngine.playersCount > 0) {
-  //       gGameEngine.playSoundtrack();
-  //     }
-  //   }
-  // }
+  onSoundLoaded(sound) {
+    if (sound.id == 'game') {
+      gGameEngine.soundtrackLoaded = true;
+      if (gGameEngine.playersCount > 0) {
+        gGameEngine.playSoundtrack();
+      }
+    }
+  }
 
-  // playSoundtrack() {
-  //   if (!gGameEngine.soundtrackPlaying) {
-  //     gGameEngine.soundtrack = createjs.Sound.play('game', 'none', 0, 0, -1);
-  //     gGameEngine.soundtrack.setVolume(1);
-  //     gGameEngine.soundtrackPlaying = true;
-  //   }
-  // }
+  playSoundtrack() {
+    if (!gGameEngine.soundtrackPlaying) {
+      gGameEngine.soundtrack = createjs.Sound.play('game', 'none', 0, 0, -1);
+      gGameEngine.soundtrack.setVolume(1);
+      gGameEngine.soundtrackPlaying = true;
+    }
+  }
+
+  toggleSound() {
+    if (gGameEngine.soundtrack.paused) {
+      gGameEngine.soundtrack.paused = false;
+    } else {
+      gGameEngine.soundtrack.paused = true;
+    }
+  }
 
   update() {
     // Player
@@ -167,9 +144,6 @@ class GameEngine {
       var enemy = gGameEngine.enemies[i];
       enemy.update();
     }
-
-    // Menu
-    gGameEngine.menu.update();
 
     // Stage
     gGameEngine.stage.update();
@@ -463,9 +437,6 @@ class GameEngine {
   }
 
   gameOver(status) {
-    if (gGameEngine.menu.visible) {
-      return;
-    }
 
     if (status == 'win') {
       var winText = 'You won!';
@@ -473,15 +444,9 @@ class GameEngine {
         var winner = gGameEngine.getWinner();
         winText = winner == 0 ? 'Player 1 won!' : 'Player 2 won!';
       }
-      this.menu.show([
-        { text: winText, color: '#669900' },
-        { text: ' ;D', color: '#99CC00' }
-      ]);
+      console.log(winText);
     } else {
-      this.menu.show([
-        { text: 'Game Over', color: '#CC0000' },
-        { text: ' :(', color: '#FF4444' }
-      ]);
+      console.log('You died!');
     }
   }
 
@@ -507,16 +472,6 @@ class GameEngine {
     var children = gGameEngine.stage.getNumChildren();
     gGameEngine.stage.setChildIndex(child, children - 1);
   }
-
-  // toggleSound() {
-  //   if (gGameEngine.mute) {
-  //     gGameEngine.mute = false;
-  //     gGameEngine.soundtrack.resume();
-  //   } else {
-  //     gGameEngine.mute = true;
-  //     gGameEngine.soundtrack.pause();
-  //   }
-  // }
 
   countPlayersAlive() {
     var playersAlive = 0;
