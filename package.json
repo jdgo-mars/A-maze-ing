@@ -4,6 +4,7 @@
   "description": "We want You, to join us in the web castle.",
   "main": "main.js",
   "scripts": {
+    "debug": "node --nolazy --inspect-brk=9229 ./src/server.js",
     "start": "nodemon ./src/server.js"
   },
   "repository": {
@@ -19,8 +20,7 @@
   "dependencies": {
     "express": "^4.16.2",
     "chalk": "2.3.0",
-    "socket.io": "2.0.4",
-    "socket.io-client": "2.0.4"
+    "socket.io": "2.1.0"
   },
   "devDependencies": {
     "nodemon": "^1.14.12"

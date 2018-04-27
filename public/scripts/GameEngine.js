@@ -9,6 +9,7 @@ import Enemy from './Enemy.js';
 import Wood from './Wood.js';
 import Princess from './Princess.js';
 
+
 class GameEngine {
   constructor() {
     this.tileSize = 32;
@@ -51,11 +52,11 @@ class GameEngine {
     // Load assets
     var queue = new createjs.LoadQueue();
     var that = this;
-    queue.addEventListener('complete', function() {
+    queue.addEventListener('complete', function () {
       that.playerBoyImg = queue.getResult('playerBoy');
-      that.princessImg = queue.getResult('princess'); 
-      that.woodImg = queue.getResult('wood'); 
-      that.enemyImg = queue.getResult('enemy'); 
+      that.princessImg = queue.getResult('princess');
+      that.woodImg = queue.getResult('wood');
+      that.enemyImg = queue.getResult('enemy');
       that.tilesImgs.grass = queue.getResult('tile_grass');
       that.tilesImgs.wall = queue.getResult('tile_wall');
       that.setup();
@@ -78,7 +79,7 @@ class GameEngine {
     this.menu = new Menu();
   }
 
-  setup() {
+  setup(maze) {
     if (!gInputEngine.bindings.length) {
       gInputEngine.setup();
     }
@@ -90,21 +91,21 @@ class GameEngine {
     this.enemies = [];
 
     // Draw tiles
-    this.drawTiles();
+    this.drawTiles(maze);
     this.drawWoods();
 
     this.spawnEnemies();
     this.spawnPlayers();
 
-    var princess = new Princess({ x: this.tilesX + 1, y: Math.floor(this.tilesY / 2)});
+    var princess = new Princess({ x: this.tilesX + 1, y: Math.floor(this.tilesY / 2) });
 
     // Toggle sound
     // gInputEngine.addListener('mute', this.toggleSound);
 
     // Restart listener
     // Timeout because when you press enter in address bar too long, it would not show menu
-    setTimeout(function() {
-      gInputEngine.addListener('restart', function() {
+    setTimeout(function () {
+      gInputEngine.addListener('restart', function () {
         if (gGameEngine.playersCount == 0) {
           gGameEngine.menu.setMode('single');
         } else {
@@ -115,7 +116,7 @@ class GameEngine {
     }, 200);
 
     // Escape listener
-    gInputEngine.addListener('escape', function() {
+    gInputEngine.addListener('escape', function () {
       if (!gGameEngine.menu.visible) {
         gGameEngine.menu.show();
       }
@@ -199,6 +200,7 @@ class GameEngine {
     // Loop through all available cell positions
     while (visited < totalCells) {
       // Determine neighboring cells
+
       var pot = [[currentCell[0] - 1, currentCell[1], 0, 2],
       [currentCell[0], currentCell[1] + 1, 1, 3],
       [currentCell[0] + 1, currentCell[1], 2, 0],
@@ -233,8 +235,9 @@ class GameEngine {
     return cells;
   }
 
-  drawTiles() {
-    var mazeCells = this.generateMaze(20,10);
+  drawTiles(maze = null) {
+
+    var mazeCells = maze || this.generateMaze(20, 10);
 
     for (var i = 0; i < this.tilesY; i++) {
       for (var j = 0; j < this.tilesX; j++) {
@@ -249,7 +252,7 @@ class GameEngine {
           var tile = new Tile('wall', { x: j, y: i });
           this.stage.addChild(tile.bmp);
           this.tiles.push(tile);
-        } else if (j % 2 == 1 && i % 2 == 1 && j !== this.tilesX - 1 && i !== this.tilesY - 1){
+        } else if (j % 2 == 1 && i % 2 == 1 && j !== this.tilesX - 1 && i !== this.tilesY - 1) {
           // Grass tiles
           var tile = new Tile('grass', { x: j, y: i });
           this.stage.addChild(tile.bmp);
@@ -324,12 +327,12 @@ class GameEngine {
     // Cache woods tiles
     var available = [];
     for (var i = 0; i < this.grassTiles.length; i++) {
-      var tile = this.grassTiles[i];    
+      var tile = this.grassTiles[i];
       available.push(tile);
     }
 
     // Sort tiles randomly
-    available.sort(function() {
+    available.sort(function () {
       return 0.5 - Math.random();
     });
 
@@ -337,8 +340,8 @@ class GameEngine {
     for (var j = 0; j < 4; j++) {
       var placedCount = 0;
       for (var i = 0; i < available.length; i++) {
-        if ((j < 2 && (placedCount > this.woodDistributionRatio / 4 - 1)) || 
-            ((j === 2 || j === 3) && (placedCount > this.woodDistributionRatio / 4))) {
+        if ((j < 2 && (placedCount > this.woodDistributionRatio / 4 - 1)) ||
+          ((j === 2 || j === 3) && (placedCount > this.woodDistributionRatio / 4))) {
           break;
         }
 
@@ -397,25 +400,26 @@ class GameEngine {
 
     this.grassTiles.sort(function (a, b) {
       if (a.position.y == b.position.y) return a.position.x - b.position.x;
-      return a.position.y - b.position.y;}
+      return a.position.y - b.position.y;
+    }
     );
 
     //get pathways with 5 available tiles
-    for(var i = 0; i < this.grassTiles.length - 5; i++) {
+    for (var i = 0; i < this.grassTiles.length - 5; i++) {
       if (
         (this.grassTiles[i].position.y === this.grassTiles[i + 1].position.y &&
-        this.grassTiles[i].position.y === this.grassTiles[i + 2].position.y &&
-        this.grassTiles[i].position.y === this.grassTiles[i + 3].position.y &&
-        this.grassTiles[i].position.y === this.grassTiles[i + 4].position.y) &&
+          this.grassTiles[i].position.y === this.grassTiles[i + 2].position.y &&
+          this.grassTiles[i].position.y === this.grassTiles[i + 3].position.y &&
+          this.grassTiles[i].position.y === this.grassTiles[i + 4].position.y) &&
 
         (this.grassTiles[i + 4].position.x - this.grassTiles[i + 3].position.x === 1 &&
-        this.grassTiles[i + 3].position.x - this.grassTiles[i + 2].position.x === 1 &&
-        this.grassTiles[i + 2].position.x - this.grassTiles[i + 1].position.x === 1 &&
-        this.grassTiles[i + 1].position.x - this.grassTiles[i].position.x === 1)
+          this.grassTiles[i + 3].position.x - this.grassTiles[i + 2].position.x === 1 &&
+          this.grassTiles[i + 2].position.x - this.grassTiles[i + 1].position.x === 1 &&
+          this.grassTiles[i + 1].position.x - this.grassTiles[i].position.x === 1)
       ) {
-          availablePathwaysStart.push(i + 4);
-          i += 5;          
-        }
+        availablePathwaysStart.push(i + 4);
+        i += 5;
+      }
     }
 
     // Sort tiles randomly
@@ -494,10 +498,10 @@ class GameEngine {
     }
   }
 
-  restart() {
+  restart(maze) {
     gInputEngine.removeAllListeners();
     gGameEngine.stage.removeAllChildren();
-    gGameEngine.setup();
+    gGameEngine.setup(maze);
   }
 
   /**

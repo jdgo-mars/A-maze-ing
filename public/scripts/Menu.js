@@ -1,4 +1,6 @@
 import gGameEngine from './GameEngine.js';
+import socket from './Socket.js';
+
 export default class Menu {
 
     constructor() {
@@ -38,7 +40,7 @@ export default class Menu {
         });
     }
 
-    setMode(mode) {
+    setMode(mode, maze) {
         this.hide();
         if (mode == 'single') {
             gGameEngine.playersCount = 1;
@@ -47,7 +49,7 @@ export default class Menu {
         }
 
         gGameEngine.playing = true;
-        gGameEngine.restart();
+        gGameEngine.restart(maze);
     }
 
     draw(text) {
@@ -91,6 +93,7 @@ export default class Menu {
         this.setHandCursor(singleBg);
         singleBg.addEventListener('click', function () {
             that.setMode('single');
+
         });
 
         var singleTitle1 = new createjs.Text("single", "16px Helvetica", "#ff4444");
@@ -124,7 +127,14 @@ export default class Menu {
         this.views.push(multiBg);
         this.setHandCursor(multiBg);
         multiBg.addEventListener('click', function () {
-            that.setMode('multi');
+            // io().emit('multiplayer-requested', (res) => {
+            //     console.log(res);
+            // });
+            socket.emit('multiplayer-requested');
+            socket.on('joined-room', maze => {
+                that.setMode('multi', maze)
+            });
+
         });
 
         var multiTitle1 = new createjs.Text("multi", "16px Helvetica", "#99cc00");
