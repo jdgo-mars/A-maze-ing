@@ -127,9 +127,6 @@ export default class Menu {
         this.views.push(multiBg);
         this.setHandCursor(multiBg);
         multiBg.addEventListener('click', function () {
-            // io().emit('multiplayer-requested', (res) => {
-            //     console.log(res);
-            // });
             socket.emit('multiplayer-requested');
             socket.on('joined-room', maze => {
                 that.setMode('multi', maze)

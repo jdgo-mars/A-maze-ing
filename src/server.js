@@ -18,9 +18,9 @@ app.get('/', function (req, res) {
     res.sendFile(__dirname + '/index.html');
 });
 
-const MazeGeneratorEngine = require('./MazeGeneratorEngine');
+const GameEngine = require('./GameEngine');
 
-const mazeGenerator = new MazeGeneratorEngine();
+const gameEngine = new GameEngine();
 
 // 0 grass tile
 // 1 wall tile
@@ -84,7 +84,7 @@ const removeRoom = ({ roomId }) => rooms.delete(room.roomId);
 
 // Map with rooms
 const rooms = new Map();
-setRoom(newRoom(mazeGenerator.getMaze(x, y)));
+setRoom(newRoom(gameEngine.getMaze(x, y)));
 
 
 io.on('connection', socket => {
@@ -105,7 +105,7 @@ io.on('connection', socket => {
         } else {
             // assign newly generated Room
             const newlyCreatedRoom = newRoom(
-                mazeGenerator.getMaze(x, y),
+                gameEngine.getMaze(x, y),
             );
 
             // Add new room
@@ -137,13 +137,11 @@ io.on('connection', socket => {
         rooms.forEach((room, key) => {
             // Find player to remove in the playerSocket Array
             const playerToRemove = room.players.find(player => player.playerSocket.id === socket.id);
-            if (playerToRemove.length) {
+            if (playerToRemove) {
                 removeRoom(room)
-
                 // Emit event to room telling oponent left and reset player Game
                 io.to(room.roomId).emit('opponent-left', room.id);
                 io.to(room.roomId).emit('reset-game', room.id);
-
             }
 
 

@@ -1,4 +1,4 @@
-class MazeGeneratorEngine {
+class GameEngine {
 
   getMaze(x, y) {
     // Establish variables and starting grid
@@ -65,4 +65,4 @@ class MazeGeneratorEngine {
 }
 
 
-module.exports = MazeGeneratorEngine;
+module.exports = GameEngine;

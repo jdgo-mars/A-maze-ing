@@ -391,6 +391,7 @@ class GameEngine {
         1
       );
       this.players.push(player2);
+      console.log(player2);
     }
   }
 
@@ -401,8 +402,7 @@ class GameEngine {
     this.grassTiles.sort(function (a, b) {
       if (a.position.y == b.position.y) return a.position.x - b.position.x;
       return a.position.y - b.position.y;
-    }
-    );
+    });
 
     //get pathways with 5 available tiles
     for (var i = 0; i < this.grassTiles.length - 5; i++) {
