@@ -40,7 +40,7 @@ export default class Menu {
         });
     }
 
-    setMode(mode, maze) {
+    setMode(mode, res) {
         this.hide();
         if (mode == 'single') {
             gGameEngine.playersCount = 1;
@@ -49,7 +49,7 @@ export default class Menu {
         }
 
         gGameEngine.playing = true;
-        gGameEngine.restart(maze);
+        gGameEngine.restart(res);
     }
 
     draw(text) {
@@ -128,8 +128,8 @@ export default class Menu {
         this.setHandCursor(multiBg);
         multiBg.addEventListener('click', function () {
             socket.emit('multiplayer-requested');
-            socket.on('joined-room', maze => {
-                that.setMode('multi', maze)
+            socket.on('joined-room', res => {
+                that.setMode('multi', res)
             });
 
         });

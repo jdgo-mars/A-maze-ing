@@ -62,6 +62,187 @@ class GameEngine {
     return cells;
   }
 
+  spawnEnemies(mazeCells) {
+    const enemies = [];
+    const availablePathwayStart = [];
+    const tilesX = 41;
+    const tilesY = 21;
+    const tiles = [];
+    const grassTiles = [];
+
+    for (let i = 0; i < tilesY; i++) {
+      for (let j = 0; j < tilesX; j++) {
+        if (
+          i == 0 ||
+          j == 0 ||
+          i == tilesY - 1 ||
+          j == tilesX - 1 ||
+          (j % 2 == 0 && i % 2 == 0)
+        ) {
+          // Wall tiles
+          const tile = { position: {x: j, y: i }};
+          tiles.push(tile);
+        } else if (j % 2 == 1 && i % 2 == 1 && j !== tilesX - 1 && i !== tilesY - 1) {
+          // Grass tiles
+          const tile = { position: {x: j, y: i }};
+          grassTiles.push(tile);
+        }
+      }
+    }
+
+    for (let i = 0; i < mazeCells.length; i++) {
+      for (let j = 0; j < mazeCells[0].length; j++) {
+        if (mazeCells[i][j][1] === 0) {
+          // Wall tiles
+          const tile = { position: {x: ((2 * j) + 2), y: ((2 * i) + 1) }};
+          tiles.push(tile);
+        } else {
+          // Grass tiles
+          const tile = { position: {x: ((2 * j) + 2), y: ((2 * i) + 1) }};
+          grassTiles.push(tile);
+        }
+        if (mazeCells[i][j][2] === 0) {
+          // Wall tiles
+          const tile = { position: {x: ((2 * j) + 1), y: ((2 * i) + 2) }};
+          tiles.push(tile);
+        } else {
+          // Grass tiles
+          const tile = { position: {x: ((2 * j) + 1), y: ((2 * i) + 2) }};
+          grassTiles.push(tile);
+        }
+      }
+    }
+
+    grassTiles.sort((a, b) => {
+      if (a.position.y === b.position.y) return a.position.x - b.position.x
+      return a.position.y - b.position.y
+    });
+
+    for (let i = 0; i < grassTiles.length - 5; i++) {
+      if (
+        (grassTiles[i].position.y === grassTiles[i + 1].position.y &&
+          grassTiles[i].position.y === grassTiles[i + 2].position.y &&
+          grassTiles[i].position.y === grassTiles[i + 3].position.y &&
+          grassTiles[i].position.y === grassTiles[i + 4].position.y) &&
+
+        (grassTiles[i + 4].position.x - grassTiles[i + 3].position.x === 1 &&
+          grassTiles[i + 3].position.x - grassTiles[i + 2].position.x === 1 &&
+          grassTiles[i + 2].position.x - grassTiles[i + 1].position.x === 1 &&
+          grassTiles[i + 1].position.x - grassTiles[i].position.x === 1)
+      ) {
+        availablePathwayStart.push(i + 4);
+        i += 5;
+      }
+    }
+
+    availablePathwayStart.sort(() => {
+      return 0.5 - Math.random();
+    });
+
+    for (let i = 0; i < 5; i++) {
+      const enemy = grassTiles[availablePathwayStart[i]].position;
+      enemies.push(enemy);
+    }
+
+    return enemies;
+  }
+
+  spawnWoods(mazeCells) {
+    const added = [];
+    const woods = [];
+    const tilesX = 41;
+    const tilesY = 21;
+    const tiles = [];
+    const grassTiles = [];
+    const woodDistributionRatio = 12;
+
+    for (let i = 0; i < tilesY; i++) {
+      for (let j = 0; j < tilesX; j++) {
+        if (
+          i == 0 ||
+          j == 0 ||
+          i == tilesY - 1 ||
+          j == tilesX - 1 ||
+          (j % 2 == 0 && i % 2 == 0)
+        ) {
+          // Wall tiles
+          const tile = { position: { x: j, y: i } };
+          tiles.push(tile);
+        } else if (j % 2 == 1 && i % 2 == 1 && j !== tilesX - 1 && i !== tilesY - 1) {
+          // Grass tiles
+          const tile = { position: { x: j, y: i } };
+          grassTiles.push(tile);
+        }
+      }
+    }
+
+    for (let i = 0; i < mazeCells.length; i++) {
+      for (let j = 0; j < mazeCells[0].length; j++) {
+        if (mazeCells[i][j][1] === 0) {
+          // Wall tiles
+          const tile = { position: { x: ((2 * j) + 2), y: ((2 * i) + 1) } };
+          tiles.push(tile);
+        } else {
+          // Grass tiles
+          const tile = { position: { x: ((2 * j) + 2), y: ((2 * i) + 1) } };
+          grassTiles.push(tile);
+        }
+        if (mazeCells[i][j][2] === 0) {
+          // Wall tiles
+          const tile = { position: { x: ((2 * j) + 1), y: ((2 * i) + 2) } };
+          tiles.push(tile);
+        } else {
+          // Grass tiles
+          const tile = { position: { x: ((2 * j) + 1), y: ((2 * i) + 2) } };
+          grassTiles.push(tile);
+        }
+      }
+    }
+
+    grassTiles.sort(() => {
+      return 0.5 - Math.random();
+    });
+
+    for (let i = 0; i < 4; i++) {
+      let placedCount = 0;
+      for (let j = 0; j < grassTiles.length; j++) {
+        if ((i < 2) && (placedCount > woodDistributionRatio / 4) ||
+          ((i >= 2) && (placedCount > woodDistributionRatio / 4 - 1))) {
+          break;
+        }
+        const tile = grassTiles[j];
+        let badTile = false;
+        for (let addedTile of added) {
+          if (Math.abs(addedTile.position.x - tile.position.x) < 5 &&
+            Math.abs(addedTile.position.y - tile.position.y) < 5) {
+            badTile = true;
+            break;
+          }
+        }
+
+        if (!badTile && (
+          (i === 0 &&
+            tile.position.x < tilesX / 2 &&
+            tile.position.y < tilesY / 2) ||
+          (i === 1 &&
+            tile.position.x < tilesX / 2 &&
+            tile.position.y > tilesY / 2) ||
+          (i === 2 &&
+            tile.position.x > tilesX / 2 &&
+            tile.position.y < tilesY / 2) ||
+          (i === 3 &&
+            tile.position.x > tilesX / 2 &&
+            tile.position.y > tilesY / 2)
+        )) {
+          woods.push(tile.position);
+          added.push(tile);
+          placedCount++;
+        }
+      }
+    }
+    return woods;
+  }
+
 }
 
 

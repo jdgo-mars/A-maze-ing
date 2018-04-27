@@ -64,10 +64,12 @@ const newPlayer = (playerSocket) => ({
  * @param {Object} socket
  * 
  */
-const newRoom = (maze = [], playerSocket = null) => ({
+const newRoom = (maze = [], enemies = [], woods = [], playerSocket = null) => ({
     roomId: getRoomId(),
     players: playerSocket ? [newPlayer(playerSocket)] : [],
     maze,
+    enemies,
+    woods,
 });
 
 /**
@@ -84,8 +86,8 @@ const removeRoom = ({ roomId }) => rooms.delete(room.roomId);
 
 // Map with rooms
 const rooms = new Map();
-setRoom(newRoom(gameEngine.getMaze(x, y)));
-
+const newMaze = gameEngine.getMaze(x, y);
+setRoom(newRoom(newMaze, gameEngine.spawnEnemies(newMaze), gameEngine.spawnWoods(newMaze)));
 
 io.on('connection', socket => {
     socket.emit('connected', { connected: true });
@@ -103,11 +105,13 @@ io.on('connection', socket => {
             // assign the room we want to join
             roomToJoin = lastCreatedRoom;
         } else {
+            const newnewMaze = gameEngine.getMaze(x, y)
             // assign newly generated Room
             const newlyCreatedRoom = newRoom(
-                gameEngine.getMaze(x, y),
+                newnewMaze, 
+                gameEngine.spawnEnemies(newnewMaze), 
+                gameEngine.spawnWoods(newnewMaze)
             );
-
             // Add new room
             setRoom(newlyCreatedRoom);
 
@@ -115,11 +119,9 @@ io.on('connection', socket => {
             roomToJoin = newlyCreatedRoom;
         }
 
-
-
         socket.join(roomToJoin.roomId, () => {
             // emit the maze from current room
-            io.to(roomToJoin.roomId).emit('joined-room', roomToJoin.maze)
+            io.to(roomToJoin.roomId).emit('joined-room', { maze: roomToJoin.maze, enemies: roomToJoin.enemies, woods: roomToJoin.woods})
             // if room to join has 2 players
             if (rooms.get(roomToJoin.roomId).players.length < 2) {
                 io.to(roomToJoin.roomId).emit('waiting-opponent', { bla: 'bla' })
