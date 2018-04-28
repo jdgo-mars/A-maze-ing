@@ -1,6 +1,5 @@
 import gGameEngine from './GameEngine.js';
 import Utils from './Utils.js';
-import { multiplayer } from './Multiplayer.js';
 
 export default class Wood {
 

@@ -127,10 +127,7 @@ export default class Menu {
         this.views.push(multiBg);
         this.setHandCursor(multiBg);
         multiBg.addEventListener('click', function () {
-            multiplayer.request();
-            socket.on('joined-room', res => {
-                that.setMode('multi', res)
-            });
+            // Quando e feito request para multiplayer
 
         });
 
@@ -175,15 +172,4 @@ export default class Menu {
         gGameEngine.stage.update();
     }
 
-    showWaiting() {
-        var bgGraphics = new createjs.Graphics().beginFill("rgba(255,0,0,0.7)").drawRect(0, 0, gGameEngine.size.w, gGameEngine.size.h);
-        var bg = new createjs.Shape(bgGraphics);
-        gGameEngine.stage.addChild(bg);
-
-        var loadingText = new createjs.Text("Waiting for Opponent...", "20px Helvetica", "#FFFFFF");
-        loadingText.x = gGameEngine.size.w / 2 - loadingText.getMeasuredWidth() / 2;
-        loadingText.y = gGameEngine.size.h / 2 - loadingText.getMeasuredHeight() / 2;
-        gGameEngine.stage.addChild(loadingText);
-        gGameEngine.stage.update();
-    }
 }

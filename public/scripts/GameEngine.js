@@ -93,10 +93,10 @@ class GameEngine {
     this.woods = [];
     this.enemies = [];
 
-    // Draw stuff 
-    res ? this.drawTiles(res.maze) : this.drawTiles();
-    res ? this.drawWoods(res.woods) : this.drawWoods();
-    res ? this.spawnEnemies(res.enemies) : this.spawnEnemies();
+    // TODO: If there's stuff from the server pass params into this functions
+    this.drawTiles();
+    this.drawWoods();
+    this.spawnEnemies();
     this.spawnPlayers();
 
     var princess = new Princess({ x: this.tilesX + 1, y: Math.floor(this.tilesY / 2) });
@@ -242,9 +242,9 @@ class GameEngine {
     return cells;
   }
 
-  drawTiles(maze = null) {
-
-    var mazeCells = maze || this.generateMaze(20, 10);
+  drawTiles() {
+    //TODO: pass the maze as param
+    this.generateMaze(20, 10);
 
     for (var i = 0; i < this.tilesY; i++) {
       for (var j = 0; j < this.tilesX; j++) {
@@ -330,55 +330,49 @@ class GameEngine {
     }
   }
 
-  drawWoods(io_woods) {
-    if (io_woods) {
-      for (let i = 0; i < io_woods.length; i++) {
-        const wood = new Wood({ x: io_woods[i].x, y: io_woods[i].y });
-        this.woods.push(wood);
-      }
-    } else {
-      // Cache woods tiles
-      var available = [];
-      for (var i = 0; i < this.grassTiles.length; i++) {
-        var tile = this.grassTiles[i];
-        available.push(tile);
-      }
+  drawWoods() {
 
-      // Sort tiles randomly
-      available.sort(function () {
-        return 0.5 - Math.random();
-      });
+    // Cache woods tiles
+    var available = [];
+    for (var i = 0; i < this.grassTiles.length; i++) {
+      var tile = this.grassTiles[i];
+      available.push(tile);
+    }
 
-      // Distribute bonuses to quarters of map precisely fairly
-      for (var j = 0; j < 4; j++) {
-        var placedCount = 0;
-        for (var i = 0; i < available.length; i++) {
-          if ((j < 2 && (placedCount > this.woodDistributionRatio / 4 - 1)) ||
-            ((j === 2 || j === 3) && (placedCount > this.woodDistributionRatio / 4))) {
-            break;
-          }
+    // Sort tiles randomly
+    available.sort(function () {
+      return 0.5 - Math.random();
+    });
 
-          var tile = available[i];
-          if (
-            (j == 0 &&
-              tile.position.x < this.tilesX / 2 &&
-              tile.position.y < this.tilesY / 2) ||
-            (j == 1 &&
-              tile.position.x < this.tilesX / 2 &&
-              tile.position.y > this.tilesY / 2) ||
-            (j == 2 &&
-              tile.position.x > this.tilesX / 2 &&
-              tile.position.y < this.tilesX / 2) ||
-            (j == 3 &&
-              tile.position.x > this.tilesX / 2 &&
-              tile.position.y > this.tilesX / 2)
-          ) {
-            var wood = new Wood(tile.position);
-            this.woods.push(wood);
+    // Distribute bonuses to quarters of map precisely fairly
+    for (var j = 0; j < 4; j++) {
+      var placedCount = 0;
+      for (var i = 0; i < available.length; i++) {
+        if ((j < 2 && (placedCount > this.woodDistributionRatio / 4 - 1)) ||
+          ((j === 2 || j === 3) && (placedCount > this.woodDistributionRatio / 4))) {
+          break;
+        }
 
-            placedCount++;
+        var tile = available[i];
+        if (
+          (j == 0 &&
+            tile.position.x < this.tilesX / 2 &&
+            tile.position.y < this.tilesY / 2) ||
+          (j == 1 &&
+            tile.position.x < this.tilesX / 2 &&
+            tile.position.y > this.tilesY / 2) ||
+          (j == 2 &&
+            tile.position.x > this.tilesX / 2 &&
+            tile.position.y < this.tilesX / 2) ||
+          (j == 3 &&
+            tile.position.x > this.tilesX / 2 &&
+            tile.position.y > this.tilesX / 2)
+        ) {
+          var wood = new Wood(tile.position);
+          this.woods.push(wood);
 
-          }
+          placedCount++;
+
         }
       }
     }
@@ -411,51 +405,46 @@ class GameEngine {
 
   }
 
-  spawnEnemies(io_enemies) {
+  spawnEnemies() {
     this.enemies = [];
 
-    if (io_enemies) {
-      for (let i = 0; i < io_enemies.length; i++) {
-        const enemy = new Enemy({ x: io_enemies[i].x, y: io_enemies[i].y });
-        this.enemies.push(enemy);
-      }
-    } else {
-      const availablePathwaysStart = [];
 
-      this.grassTiles.sort(function (a, b) {
-        if (a.position.y == b.position.y) return a.position.x - b.position.x;
-        return a.position.y - b.position.y;
-      });
+    const availablePathwaysStart = [];
 
-      //get pathways with 5 available tiles
-      for (var i = 0; i < this.grassTiles.length - 5; i++) {
-        if (
-          (this.grassTiles[i].position.y === this.grassTiles[i + 1].position.y &&
-            this.grassTiles[i].position.y === this.grassTiles[i + 2].position.y &&
-            this.grassTiles[i].position.y === this.grassTiles[i + 3].position.y &&
-            this.grassTiles[i].position.y === this.grassTiles[i + 4].position.y) &&
+    this.grassTiles.sort(function (a, b) {
+      if (a.position.y == b.position.y) return a.position.x - b.position.x;
+      return a.position.y - b.position.y;
+    });
 
-          (this.grassTiles[i + 4].position.x - this.grassTiles[i + 3].position.x === 1 &&
-            this.grassTiles[i + 3].position.x - this.grassTiles[i + 2].position.x === 1 &&
-            this.grassTiles[i + 2].position.x - this.grassTiles[i + 1].position.x === 1 &&
-            this.grassTiles[i + 1].position.x - this.grassTiles[i].position.x === 1)
-        ) {
-          availablePathwaysStart.push(i + 4);
-          i += 5;
-        }
-      }
+    //get pathways with 5 available tiles
+    for (var i = 0; i < this.grassTiles.length - 5; i++) {
+      if (
+        (this.grassTiles[i].position.y === this.grassTiles[i + 1].position.y &&
+          this.grassTiles[i].position.y === this.grassTiles[i + 2].position.y &&
+          this.grassTiles[i].position.y === this.grassTiles[i + 3].position.y &&
+          this.grassTiles[i].position.y === this.grassTiles[i + 4].position.y) &&
 
-      // Sort tiles randomly
-      availablePathwaysStart.sort(function () {
-        return 0.5 - Math.random();
-      });
-
-      for (var i = 0; i < 3; i++) {
-        var startingPosition = this.grassTiles[availablePathwaysStart[i]].position;
-        var enemy = new Enemy(startingPosition);
-        this.enemies.push(enemy);
+        (this.grassTiles[i + 4].position.x - this.grassTiles[i + 3].position.x === 1 &&
+          this.grassTiles[i + 3].position.x - this.grassTiles[i + 2].position.x === 1 &&
+          this.grassTiles[i + 2].position.x - this.grassTiles[i + 1].position.x === 1 &&
+          this.grassTiles[i + 1].position.x - this.grassTiles[i].position.x === 1)
+      ) {
+        availablePathwaysStart.push(i + 4);
+        i += 5;
       }
     }
+
+    // Sort tiles randomly
+    availablePathwaysStart.sort(function () {
+      return 0.5 - Math.random();
+    });
+
+    for (var i = 0; i < 3; i++) {
+      var startingPosition = this.grassTiles[availablePathwaysStart[i]].position;
+      var enemy = new Enemy(startingPosition);
+      this.enemies.push(enemy);
+    }
+
   }
 
   /**
@@ -496,20 +485,14 @@ class GameEngine {
     }
 
     if (status == 'win') {
-      multiplayer.playerWon();
+      // If a player Won tell the other guy he Lost
       var winText = 'You won!';
-      // if (gGameEngine.playersCount > 1) {
-      //   var winner = gGameEngine.getWinner();
-      //   winText = winner == 0 ? 'Player 1 won!' : 'Player 2 won!';
-      // }
+
+
+      // add condition for setting lose status
       this.menu.show([
         { text: winText, color: '#669900' },
         { text: ' ;D', color: '#99CC00' }
-      ]);
-    } else if (status == 'lost') {
-      this.menu.show([
-        { text: 'You lost!', color: '#669900' },
-        { text: ' :(', color: '#99CC00' }
       ]);
     } else {
       this.menu.show([
