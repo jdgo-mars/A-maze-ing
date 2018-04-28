@@ -21,7 +21,7 @@ export let multiplayer = {
 	},
 
 	playerWon() {
-		socket.emit('player-won', gGameEngine.playerId);
+		socket.emit('player-won');
 	},
 
 };

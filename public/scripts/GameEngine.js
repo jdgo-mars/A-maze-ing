@@ -8,7 +8,7 @@ import Player from './Player.js';
 import Enemy from './Enemy.js';
 import Wood from './Wood.js';
 import Princess from './Princess.js';
-import { multiplayer, socket } from './Multiplayer.js';
+import { multiplayer } from './Multiplayer.js';
 
 class GameEngine {
   constructor() {
@@ -93,10 +93,9 @@ class GameEngine {
     this.woods = [];
     this.enemies = [];
 
-    // Draw tiles
+    // Draw stuff 
     res ? this.drawTiles(res.maze) : this.drawTiles();
     res ? this.drawWoods(res.woods) : this.drawWoods();
-
     res ? this.spawnEnemies(res.enemies) : this.spawnEnemies();
     this.spawnPlayers();
 
@@ -497,11 +496,12 @@ class GameEngine {
     }
 
     if (status == 'win') {
+      multiplayer.playerWon();
       var winText = 'You won!';
-      if (gGameEngine.playersCount > 1) {
-        var winner = gGameEngine.getWinner();
-        winText = winner == 0 ? 'Player 1 won!' : 'Player 2 won!';
-      }
+      // if (gGameEngine.playersCount > 1) {
+      //   var winner = gGameEngine.getWinner();
+      //   winText = winner == 0 ? 'Player 1 won!' : 'Player 2 won!';
+      // }
       this.menu.show([
         { text: winText, color: '#669900' },
         { text: ' ;D', color: '#99CC00' }

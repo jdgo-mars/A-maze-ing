@@ -7,7 +7,7 @@ export default class Player {
 
     constructor(position, controls, id) {
         this.id = 0;
-        this.velocity = 2;
+        this.velocity = 3;
         this.wood = 0;
         this.size = {
             w: 48,
@@ -167,9 +167,7 @@ export default class Player {
         if (this.wood < 5) {
             this.handleWoodCollision(Utils.convertToEntityPosition(position));
         }
-        if (this.didWin(position, this.wood)) {
-            gGameEngine.gameOver('win');
-        }
+
     }
 
     /**

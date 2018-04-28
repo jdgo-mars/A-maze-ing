@@ -147,11 +147,11 @@ io.on('connection', socket => {
                     .emit('kill-player', playerId);
             });
 
-            socket.on('player-won', playerId => {
+            socket.on('player-won', () => {
                 // broadcast to other players in the room
                 socket.broadcast
                     .to(roomToJoin.roomId)
-                    .emit('won-player', playerId);
+                    .emit('won-player');
             });
         });
 
