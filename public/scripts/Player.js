@@ -1,7 +1,7 @@
 import gGameEngine from './GameEngine.js';
 import gInputEngine from './InputEngine.js';
 import Utils from './Utils.js';
-import { socket, mutiplayer } from './Multiplayer.js';
+import { socket, multiplayer } from './Multiplayer.js';
 
 export default class Player {
 
@@ -53,7 +53,7 @@ export default class Player {
 
     }
 
-    update(sendPos = false, getPos = false) {
+    update() {
 
         if (!this.alive) {
             //this.fade();
@@ -63,26 +63,31 @@ export default class Player {
             return;
         }
         var position = { x: this.bmp.x, y: this.bmp.y };
-
+        var direction;
         var dirX = 0;
         var dirY = 0;
         if (gInputEngine.actions[this.controls.up]) {
+            direction = 'up';
             this.animate('up');
             position.y -= this.velocity;
             dirY = -1;
         } else if (gInputEngine.actions[this.controls.down]) {
             this.animate('down');
+            direction = 'down';
             position.y += this.velocity;
             dirY = 1;
         } else if (gInputEngine.actions[this.controls.left]) {
             this.animate('left');
+            direction = 'left';
             position.x -= this.velocity;
             dirX = -1;
         } else if (gInputEngine.actions[this.controls.right]) {
             this.animate('right');
+            direction = 'right';
             position.x += this.velocity;
             dirX = 1;
         } else {
+            direction = 'idle';
             this.animate('idle');
         }
 
@@ -100,13 +105,14 @@ export default class Player {
                     }
                     this.bmp.x += fixX * this.velocity;
                     this.bmp.y += fixY * this.velocity;
-                    this.updatePosition(getPos, sendPos);
+                    this.updatePosition();
                 }
             } else {
                 this.bmp.x = position.x;
                 this.bmp.y = position.y;
-                this.updatePosition(getPos, sendPos);
+                this.updatePosition();
             }
+
         }
 
         if (this.detectEnemyCollision()) {
@@ -114,6 +120,52 @@ export default class Player {
         }
         if (this.wood < 5) {
             this.handleWoodCollision();
+        }
+        if (this.didWin(position, this.wood)) {
+            gGameEngine.gameOver('win');
+        }
+
+        multiplayer.sendCurrentPosition(position, direction);
+
+    }
+
+    updateOpponent(bmp, direction) {
+
+        if (gGameEngine.menu.visible) {
+            return;
+        }
+
+        var position = { x: bmp.x, y: bmp.y };
+
+        var dirX = 0;
+        var dirY = 0;
+
+        if (direction === 'up') {
+            this.animate('up');
+            position.y -= this.velocity;
+            dirY = -1;
+        } else if (direction === 'down') {
+            this.animate('down');
+            position.y += this.velocity;
+            dirY = 1;
+        } else if (direction === 'left') {
+            this.animate('left');
+            position.x -= this.velocity;
+            dirX = -1;
+        } else if (direction === 'right') {
+            this.animate('right');
+            position.x += this.velocity;
+            dirX = 1;
+        } else {
+            this.animate('idle');
+        }
+
+        this.bmp.x = position.x;
+        this.bmp.y = position.y;
+        this.updatePosition();
+
+        if (this.wood < 5) {
+            this.handleWoodCollision(Utils.convertToEntityPosition(position));
         }
         if (this.didWin(position, this.wood)) {
             gGameEngine.gameOver('win');
@@ -166,18 +218,10 @@ export default class Player {
     /**
      * Calculates and updates entity position according to its actual bitmap position
      */
-    updatePosition(getPos, sendPos) {
+    updatePosition() {
         this.position = Utils.convertToEntityPosition(this.bmp);
-        if (getPos) {
-            socket.on('opponent-position', position => {
-                console.log(position);
-                this.position = position;
-            });
-        }
-        if (sendPos) {
-            socket.emit('update-position', this.position);
-        }
     }
+
 
     /**
      * Returns true when collision is detected and we should not move to target position.
@@ -232,11 +276,22 @@ export default class Player {
         return false;
     }
 
-    detectEnemyCollision() {
+    detectEnemyCollision(pos = null) {
+        const position = pos || this.position;
+        if (pos) {
+            console.log('position');
+            console.log(position);
+        }
+
         var enemies = gGameEngine.enemies;
         for (var i = 0; i < enemies.length; i++) {
             var enemy = enemies[i];
-            var collision = enemy.position.x == this.position.x && enemy.position.y == this.position.y;
+            if (pos) {
+                console.log(enemy.position);
+
+            }
+
+            var collision = enemy.position.x == position.x && enemy.position.y == position.y;
             if (collision) {
                 return true;
             }
@@ -247,10 +302,11 @@ export default class Player {
     /**
      * Checks whether we have got bonus and applies it.
      */
-    handleWoodCollision() {
+    handleWoodCollision(pos = null) {
+        const position = pos || this.position;
         for (var i = 0; i < gGameEngine.woods.length; i++) {
             var wood = gGameEngine.woods[i];
-            if (Utils.comparePositions(wood.position, this.position)) {
+            if (Utils.comparePositions(wood.position, position)) {
                 this.wood += 1;
                 wood.destroy();
             }
@@ -266,15 +322,16 @@ export default class Player {
         }
     }
 
-    die() {
+    die(server) {
         this.alive = false;
-
+        if (!server) multiplayer.playerDied();
         if (gGameEngine.countPlayersAlive() == 0) {
             gGameEngine.gameOver('Game Over');
         }
 
         this.bmp.gotoAndPlay('dead');
         this.fade();
+
     }
 
     fade() {

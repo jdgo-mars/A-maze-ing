@@ -54,7 +54,6 @@ const getRoomId = () => '_' + Math.random().toString(36).substr(2, 9);
  * 
  */
 const newPlayer = (playerSocket) => ({
-    position: [],
     playerSocket,
 });
 
@@ -82,12 +81,11 @@ const setRoom = room => rooms.set(room.roomId, room);
  * Remove room from rooms
  * @param {Object} room
  */
-const removeRoom = ({ roomId }) => rooms.delete(room.roomId);
+const removeRoom = ({ roomId }) => rooms.delete(roomId);
 
 // Map with rooms
 const rooms = new Map();
 const newMaze = gameEngine.getMaze(x, y);
-setRoom(newRoom(newMaze, gameEngine.spawnEnemies(newMaze), gameEngine.spawnWoods(newMaze)));
 
 io.on('connection', socket => {
     socket.emit('connected', { connected: true });
@@ -95,7 +93,12 @@ io.on('connection', socket => {
     socket.on('multiplayer-requested', () => {
         console.log('connected')
         let roomToJoin;
-        const lastCreatedRoom = Array.from(rooms.values()).pop();
+        let lastCreatedRoom
+        if (!rooms.size) {
+            setRoom(newRoom(newMaze, gameEngine.spawnEnemies(newMaze), gameEngine.spawnWoods(newMaze)));
+        }
+        lastCreatedRoom = Array.from(rooms.values()).pop();
+
 
         // If players in the room less than 2 
         if (lastCreatedRoom.players.length < 2) {
@@ -121,35 +124,50 @@ io.on('connection', socket => {
 
         socket.join(roomToJoin.roomId, () => {
             // emit the maze from current room
-            io.to(roomToJoin.roomId).emit('joined-room', { maze: roomToJoin.maze, enemies: roomToJoin.enemies, woods: roomToJoin.woods })
+            io.to(roomToJoin.roomId).emit('joined-room',
+                { maze: roomToJoin.maze, enemies: roomToJoin.enemies, woods: roomToJoin.woods })
             // if room to join has 2 players
             if (rooms.get(roomToJoin.roomId).players.length < 2) {
                 io.to(roomToJoin.roomId).emit('waiting-opponent')
             } else {
                 io.to(roomToJoin.roomId).emit('start-game')
             }
-            socket.on('update-position', position => {
-                console.log(position)
+            socket.on('update-position', ({ bmp, direction }) => {
                 // broadcast to other players in the room
                 socket.broadcast
                     .to(roomToJoin.roomId)
-                    .emit('opponent-position', position);
+                    .emit('opponent-position', { bmp, direction });
 
             });
 
+            socket.on('player-died', playerId => {
+                // broadcast to other players in the room
+                socket.broadcast
+                    .to(roomToJoin.roomId)
+                    .emit('kill-player', playerId);
+            });
+
+            socket.on('player-won', playerId => {
+                // broadcast to other players in the room
+                socket.broadcast
+                    .to(roomToJoin.roomId)
+                    .emit('won-player', playerId);
+            });
         });
 
     })
     socket.on('disconnect', () => {
+
         rooms.forEach((room, key) => {
             // Find player to remove in the playerSocket Array
             const playerToRemove = room.players.find(player => player.playerSocket.id === socket.id);
-            // if (playerToRemove) {
-            //     removeRoom(room)
-            //     // Emit event to room telling oponent left and reset player Game
-            //     io.to(room.roomId).emit('opponent-left', room.id);
-            //     io.to(room.roomId).emit('reset-game', room.id);
-            // }
+
+            if (playerToRemove) {
+                removeRoom(room)
+                io.to(room.roomId).emit('reset-game', room.id);
+                return;
+
+            }
         })
     });
 

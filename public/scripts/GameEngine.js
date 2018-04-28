@@ -506,6 +506,11 @@ class GameEngine {
         { text: winText, color: '#669900' },
         { text: ' ;D', color: '#99CC00' }
       ]);
+    } else if (status == 'lost') {
+      this.menu.show([
+        { text: 'You lost!', color: '#669900' },
+        { text: ' :(', color: '#99CC00' }
+      ]);
     } else {
       this.menu.show([
         { text: 'Game Over', color: '#CC0000' },
