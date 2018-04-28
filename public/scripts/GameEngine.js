@@ -395,7 +395,7 @@ class GameEngine {
       };
 
       var player2 = new Player(
-        { x: gGameEngine.tilesX - 2, y: gGameEngine.tilesY - 2 },
+        { x: 1, y: gGameEngine.tilesY - 2 },
         controls,
         1
       );
