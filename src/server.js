@@ -5,7 +5,7 @@ const io = require('socket.io')(server);
 const chalk = require('chalk');
 const log = console.log;
 
-const port = 8888;
+const port = process.env.PORT || 8888;
 
 app.use(express.static('public'));
 
