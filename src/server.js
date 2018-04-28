@@ -108,8 +108,8 @@ io.on('connection', socket => {
             const newnewMaze = gameEngine.getMaze(x, y)
             // assign newly generated Room
             const newlyCreatedRoom = newRoom(
-                newnewMaze, 
-                gameEngine.spawnEnemies(newnewMaze), 
+                newnewMaze,
+                gameEngine.spawnEnemies(newnewMaze),
                 gameEngine.spawnWoods(newnewMaze)
             );
             // Add new room
@@ -121,37 +121,37 @@ io.on('connection', socket => {
 
         socket.join(roomToJoin.roomId, () => {
             // emit the maze from current room
-            io.to(roomToJoin.roomId).emit('joined-room', { maze: roomToJoin.maze, enemies: roomToJoin.enemies, woods: roomToJoin.woods})
+            io.to(roomToJoin.roomId).emit('joined-room', { maze: roomToJoin.maze, enemies: roomToJoin.enemies, woods: roomToJoin.woods })
             // if room to join has 2 players
             if (rooms.get(roomToJoin.roomId).players.length < 2) {
-                io.to(roomToJoin.roomId).emit('waiting-opponent', { bla: 'bla' })
+                io.to(roomToJoin.roomId).emit('waiting-opponent')
             } else {
                 io.to(roomToJoin.roomId).emit('start-game')
             }
+            socket.on('update-position', position => {
+                console.log(position)
+                // broadcast to other players in the room
+                socket.broadcast
+                    .to(roomToJoin.roomId)
+                    .emit('opponent-position', position);
 
+            });
 
         });
-
-
 
     })
     socket.on('disconnect', () => {
         rooms.forEach((room, key) => {
             // Find player to remove in the playerSocket Array
             const playerToRemove = room.players.find(player => player.playerSocket.id === socket.id);
-            if (playerToRemove) {
-                removeRoom(room)
-                // Emit event to room telling oponent left and reset player Game
-                io.to(room.roomId).emit('opponent-left', room.id);
-                io.to(room.roomId).emit('reset-game', room.id);
-            }
-
-
+            // if (playerToRemove) {
+            //     removeRoom(room)
+            //     // Emit event to room telling oponent left and reset player Game
+            //     io.to(room.roomId).emit('opponent-left', room.id);
+            //     io.to(room.roomId).emit('reset-game', room.id);
+            // }
         })
-
     });
-
-
 
 });
 

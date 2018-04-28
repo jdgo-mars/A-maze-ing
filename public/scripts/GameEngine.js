@@ -8,7 +8,7 @@ import Player from './Player.js';
 import Enemy from './Enemy.js';
 import Wood from './Wood.js';
 import Princess from './Princess.js';
-
+import { multiplayer, socket } from './Multiplayer.js';
 
 class GameEngine {
   constructor() {
@@ -18,6 +18,8 @@ class GameEngine {
     this.fps = 50;
     this.playersCount = 1;
     this.woodDistributionRatio = 12;
+
+    this.playerId = null;
 
     this.stage = null;
     this.menu = null;
@@ -43,6 +45,7 @@ class GameEngine {
       w: this.tileSize * (this.tilesX + 4),
       h: this.tileSize * this.tilesY
     };
+
   }
 
   load() {
@@ -158,10 +161,15 @@ class GameEngine {
 
   update() {
     // Player
-    for (var i = 0; i < gGameEngine.players.length; i++) {
-      var player = gGameEngine.players[i];
-      player.update();
+    if (gGameEngine.playerId !== null) {
+      gGameEngine.players[gGameEngine.playerId].update();
+    } else {
+      for (var i = 0; i < gGameEngine.players.length; i++) {
+        var player = gGameEngine.players[i];
+        player.update(gGameEngine.playerId);
+      }
     }
+
 
     // Enemies
     for (var i = 0; i < gGameEngine.enemies.length; i++) {
@@ -326,7 +334,7 @@ class GameEngine {
   drawWoods(io_woods) {
     if (io_woods) {
       for (let i = 0; i < io_woods.length; i++) {
-        const wood = new Wood({ x: io_woods[i].x, y: io_woods[i].y});
+        const wood = new Wood({ x: io_woods[i].x, y: io_woods[i].y });
         this.woods.push(wood);
       }
     } else {
@@ -381,33 +389,35 @@ class GameEngine {
     this.players = [];
 
     if (this.playersCount >= 1) {
-      var player = new Player({ x: 1, y: 1 });
+      var player = new Player({ x: 1, y: 1 }, null, 0);
       this.players.push(player);
     }
 
     if (this.playersCount >= 2) {
       var controls = {
-        up: 'up2',
-        left: 'left2',
-        down: 'down2',
-        right: 'right2',
+        up: 'up',
+        left: 'left',
+        down: 'down',
+        right: 'right',
       };
+
       var player2 = new Player(
-        { x: 1, y: this.tilesY - 2 },
+        { x: gGameEngine.tilesX - 2, y: gGameEngine.tilesY - 2 },
         controls,
         1
       );
-      this.players.push(player2);
-      console.log(player2);
+
+      gGameEngine.players.push(player2);
     }
+
   }
 
   spawnEnemies(io_enemies) {
     this.enemies = [];
-    
+
     if (io_enemies) {
       for (let i = 0; i < io_enemies.length; i++) {
-        const enemy = new Enemy({ x: io_enemies[i].x, y: io_enemies[i].y});
+        const enemy = new Enemy({ x: io_enemies[i].x, y: io_enemies[i].y });
         this.enemies.push(enemy);
       }
     } else {
@@ -446,7 +456,7 @@ class GameEngine {
         var enemy = new Enemy(startingPosition);
         this.enemies.push(enemy);
       }
-    } 
+    }
   }
 
   /**

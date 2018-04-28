@@ -1,6 +1,8 @@
 import gGameEngine from './GameEngine.js';
 import gInputEngine from './InputEngine.js';
 import Utils from './Utils.js';
+import { socket, mutiplayer } from './Multiplayer.js';
+
 export default class Player {
 
     constructor(position, controls, id) {
@@ -51,7 +53,8 @@ export default class Player {
 
     }
 
-    update() {
+    update(sendPos = false, getPos = false) {
+
         if (!this.alive) {
             //this.fade();
             return;
@@ -97,12 +100,12 @@ export default class Player {
                     }
                     this.bmp.x += fixX * this.velocity;
                     this.bmp.y += fixY * this.velocity;
-                    this.updatePosition();
+                    this.updatePosition(getPos, sendPos);
                 }
             } else {
                 this.bmp.x = position.x;
                 this.bmp.y = position.y;
-                this.updatePosition();
+                this.updatePosition(getPos, sendPos);
             }
         }
 
@@ -110,7 +113,7 @@ export default class Player {
             this.die();
         }
         if (this.wood < 5) {
-            this.handleWoodCollision();            
+            this.handleWoodCollision();
         }
         if (this.didWin(position, this.wood)) {
             gGameEngine.gameOver('win');
@@ -163,8 +166,17 @@ export default class Player {
     /**
      * Calculates and updates entity position according to its actual bitmap position
      */
-    updatePosition() {
+    updatePosition(getPos, sendPos) {
         this.position = Utils.convertToEntityPosition(this.bmp);
+        if (getPos) {
+            socket.on('opponent-position', position => {
+                console.log(position);
+                this.position = position;
+            });
+        }
+        if (sendPos) {
+            socket.emit('update-position', this.position);
+        }
     }
 
     /**

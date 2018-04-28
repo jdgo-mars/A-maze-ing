@@ -55,7 +55,7 @@ export default class Enemy {
     }
 
     moveToTargetPosition() {
-        
+
         if (this.dirX == -1) {
             this.direction = 'left';
         } else if (this.dirX == 1) {
@@ -67,7 +67,7 @@ export default class Enemy {
         var velocity = this.velocity;
 
         var targetPosition = { x: this.bmp.x + this.dirX * velocity, y: this.bmp.y + this.dirY * velocity };
-        if(this.detectWallCollision(targetPosition)) {
+        if (this.detectWallCollision(targetPosition)) {
             if (this.dirX == 0) {
                 this.dirY = this.dirY * (-1);
             } else if (this.dirY == 0) {
@@ -83,6 +83,7 @@ export default class Enemy {
 
     updatePosition() {
         this.position = Utils.convertToEntityPosition(this.bmp);
+
     }
 
     animate(animation) {

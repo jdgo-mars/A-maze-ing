@@ -1,5 +1,5 @@
 import gGameEngine from './GameEngine.js';
-import socket from './Socket.js';
+import multiplayer from './Multiplayer.js';
 
 export default class Menu {
 
@@ -127,6 +127,7 @@ export default class Menu {
         this.views.push(multiBg);
         this.setHandCursor(multiBg);
         multiBg.addEventListener('click', function () {
+
             socket.emit('multiplayer-requested');
             socket.on('joined-room', res => {
                 that.setMode('multi', res)
